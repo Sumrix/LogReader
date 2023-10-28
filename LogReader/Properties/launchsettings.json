@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "LogReader (Unpackaged)": {
+        "commandName": "Project"
+      },
+      "LogReader (Package)": {
+        "commandName": "MsixPackage"
+      }
+    }
+}
