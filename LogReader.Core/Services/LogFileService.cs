@@ -10,6 +10,13 @@ public class LogFileService : ILogFileService
     /// <inheritdoc/>
     public bool TryRead(string fileName, out string? content)
     {
-        throw new NotImplementedException();
+        if (!File.Exists(fileName))
+        {
+            content = null;
+            return false;
+        }
+        
+        content = File.ReadAllText(fileName);
+        return true;
     }
 }
