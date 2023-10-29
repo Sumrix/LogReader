@@ -21,7 +21,7 @@ public class ProgramTests
 
         //Assert
         var output = stringWriter.ToString();
-        Assert.AreEqual(fileContent, output);
+        Assert.AreEqual(fileContent + Environment.NewLine, output);
 
         // Cleanup
         File.Delete(tempFileName);
@@ -41,7 +41,9 @@ public class ProgramTests
 
         //Assert
         var output = stringWriter.ToString();
-        Assert.AreEqual($"Error: File \"{nonExistentFile}\" does not exist or cannot be accessed. Please check the file path and try again.", output);
+        Assert.AreEqual(
+            $"Error: File \"{nonExistentFile}\" does not exist or cannot be accessed. Please check the file path and try again."
+            + Environment.NewLine, output);
     }
 
     [TestMethod]
@@ -56,6 +58,6 @@ public class ProgramTests
 
         //Assert
         var output = stringWriter.ToString();
-        Assert.AreEqual($"Error: The file name cannot be empty. Please enter a file name.", output);
+        Assert.AreEqual($"Error: The file name cannot be empty. Please enter a file name." + Environment.NewLine, output);
     }
 }
