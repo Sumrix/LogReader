@@ -1,6 +1,7 @@
 ﻿using LogReader.Core.Contracts.Services;
+using LogReader.Core.Services;
 
-namespace LogReader.Core.Services.Tests;
+namespace LogReader.Tests.MSTest.Services;
 
 [TestClass]
 public class LogFileServiceTests
