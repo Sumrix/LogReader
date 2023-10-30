@@ -1,15 +1,28 @@
-﻿using Avalonia;
+﻿using System.IO;
+using System.Reflection;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using LogReader.Core.Contracts.Services;
+using LogReader.Core.Services;
 using LogReader.Desktop.ViewModels;
-using MainView = LogReader.Desktop.Views.MainView;
-using MainWindow = LogReader.Desktop.Views.MainWindow;
+using LogReader.Desktop.Views;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace LogReader.Desktop;
 
-public partial class App : Application
+public class App : Application
 {
+    private IHost? _host;
+
+    public T? GetService<T>()
+        where T : class
+        => _host?.Services.GetService(typeof(T)) as T;
+    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -21,21 +34,47 @@ public partial class App : Application
         // Without this line you will get duplicate validations from both Avalonia and CT
         BindingPlugins.DataValidators.RemoveAt(0);
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        switch (ApplicationLifetime)
         {
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
-        }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
-        {
-            singleViewPlatform.MainView = new MainView
-            {
-                DataContext = new MainViewModel()
-            };
+            case IClassicDesktopStyleApplicationLifetime desktop:
+                StartHost(desktop.Args);
+                desktop.MainWindow = GetService<ShellWindow>();
+                break;
+            //case { } invalidLifetime:
+            //    throw new InvalidOperationException($"The application is not intended to run in {invalidLifetime.GetType()} mode");
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void StartHost(string[]? args)
+    {
+        var appLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
+
+        _host = Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration(c => { c.SetBasePath(appLocation); })
+            .ConfigureServices(ConfigureServices)
+            .Build();
+
+        _host.Start();
+    }
+
+    private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    {
+        var desktop = (IClassicDesktopStyleApplicationLifetime)Current!.ApplicationLifetime!;
+
+        // Core Services
+        services.AddSingleton<ILogFileService, LogFileService>();
+
+        // Services
+        services.AddSingleton(desktop);
+
+        // Views and ViewModels
+        services.AddTransient<ShellWindow>();
+        services.AddTransient<ShellViewModel>();
+
+        services.AddTransient<LogViewModel>();
+
+        // Configuration
     }
 }
