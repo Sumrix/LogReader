@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:LogReader.Desktop.Views"
+        xmlns:viewModels="using:LogReader.Desktop.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="LogReader.Desktop.Views.ShellWindow"
+        Icon="/Assets/LogReader.ico"
+        Title="LogReader"
+        x:DataType="viewModels:ShellViewModel"
+>
+    <Window.DataTemplates>
+        <DataTemplate DataType="{x:Type viewModels:LogViewModel}">
+            <views:LogView/>
+        </DataTemplate>
+    </Window.DataTemplates>
+    <Grid RowDefinitions="Auto,*">
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..." Command="{Binding Open}"/>
+                <Separator/>
+                <MenuItem Header="_Exit" Command="{Binding Exit}"/>
+            </MenuItem>
+        </Menu>
+        <ContentControl Grid.Row="1" Content="{Binding LogViewModel, Mode=OneWay}" />
+    </Grid>
+</Window>
