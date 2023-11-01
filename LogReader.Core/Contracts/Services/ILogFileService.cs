@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using LogReader.Core.Models;
+﻿using LogReader.Core.Models;
 
 namespace LogReader.Core.Contracts.Services;
 
@@ -12,7 +11,6 @@ public interface ILogFileService
     /// Attempts to read the content of the specified log file.
     /// </summary>
     /// <param name="fileName">The name or path of the file to read.</param>
-    /// <param name="logFile">When this method returns, contains the data of the log file if the file was read successfully, or null if the file could not be accessed.</param>
-    /// <returns><c>true</c> if the file was read successfully; otherwise, <c>false</c>.</returns>
-    bool TryRead(string fileName, [NotNullWhen(true)] out LogFileModel? logFile);
+    /// <returns>The data of the log file if the file was read successfully; otherwise, null.</returns>
+    Task<LogFileModel?> TryReadAsync(string fileName);
 }

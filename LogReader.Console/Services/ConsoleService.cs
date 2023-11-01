@@ -20,12 +20,12 @@ public class ConsoleService : IConsoleService
             return;
         }
 
-        if (!_logFileService.TryRead(fileName, out var fileContent))
-        {
-            System.Console.WriteLine($"Error: File \"{fileName}\" does not exist or cannot be accessed. Please check the file path and try again.");
-            return;
-        }
+        //if (!_logFileService.TryRead(fileName, out var fileContent))
+        //{
+        //    System.Console.WriteLine($"Error: File \"{fileName}\" does not exist or cannot be accessed. Please check the file path and try again.");
+        //    return;
+        //}
 
-        System.Console.WriteLine(fileContent);
+        //System.Console.WriteLine(fileContent);
     }
 }
