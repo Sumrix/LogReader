@@ -34,7 +34,7 @@ public partial class ShellViewModel : ObservableObject
             AllowMultiple = false
         });
         var fileName = files[0].TryGetLocalPath()!;
-        if (!_logFileService.TryRead(fileName, out var logs))
+        if (!_logFileService.TryRead(fileName, out _ /*logs*/))
         {
             var msg = MessageBoxManager.GetMessageBoxStandard(
                 "Open Text File",
@@ -45,7 +45,8 @@ public partial class ShellViewModel : ObservableObject
             return;
         }
 
-        LogViewModel = new(logs);
+        // TODO: set correct logs
+        LogViewModel = new(""/*logs*/);
     }
 
     [RelayCommand]

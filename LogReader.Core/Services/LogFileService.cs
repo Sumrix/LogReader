@@ -1,4 +1,5 @@
 ﻿using LogReader.Core.Contracts.Services;
+using LogReader.Core.Models;
 
 namespace LogReader.Core.Services;
 
@@ -8,15 +9,17 @@ namespace LogReader.Core.Services;
 public class LogFileService : ILogFileService
 {
     /// <inheritdoc/>
-    public bool TryRead(string fileName, out string? content)
+    public bool TryRead(string fileName, out LogFileModel? logFile)
     {
-        if (!File.Exists(fileName))
-        {
-            content = null;
-            return false;
-        }
+        //if (!File.Exists(fileName))
+        //{
+        //    content = null;
+        //    return false;
+        //}
         
-        content = File.ReadAllText(fileName);
-        return true;
+        //content = File.ReadAllText(fileName);
+        //return true;
+        logFile = null;
+        return false;
     }
 }
