@@ -2,5 +2,5 @@
 
 public interface IConsoleService
 {
-    void Run(string[] args);
+    Task RunAsync(string[] args);
 }

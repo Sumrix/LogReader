@@ -1,8 +1,7 @@
 {
   "profiles": {
     "LogReader.Console": {
-      "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\Program.cs"
+      "commandName": "Project"
     }
   }
 }
