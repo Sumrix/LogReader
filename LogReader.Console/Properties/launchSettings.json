@@ -1,7 +1,8 @@
 {
   "profiles": {
     "LogReader.Console": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\LogReader.Tests.MSTest\\Assets\\logs_input.txt"
     }
   }
 }

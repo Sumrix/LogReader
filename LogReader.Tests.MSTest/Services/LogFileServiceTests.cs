@@ -12,37 +12,10 @@ public class LogFileServiceTests
     {
         _logFileService = new LogFileService();
     }
-
+    
     [TestMethod]
-    public async Task TryRead_FileExistsButEmpty_ReturnsFileModelAndNoRecords()
-    {
-        // Arrange
-        var tempFileName = Path.GetTempFileName();
-        const string fileContent = "";
-        await File.WriteAllTextAsync(tempFileName, fileContent);
-
-        // Act
-        var logFile = await _logFileService.TryReadAsync(tempFileName);
-
-        // Assert
-        Assert.IsNotNull(logFile);
-
-        var expectedRecords = Array.Empty<string>();
-        var actualRecords = logFile.Records.Select(r => r.Text).ToList();
-        CollectionAssert.AreEqual(expectedRecords, actualRecords);
-
-        // Cleanup
-        File.Delete(tempFileName);
-    }
-
-    [TestMethod]
-    public async Task TryRead_FileExistsWithRandomText_ReturnsFileModelAndNoRecords()
-    {
-        // Arrange
-        var tempFileName = Path.GetTempFileName();
-        var fileContent =
-            // ReSharper disable once StringLiteralTypo
-            """
+    [DataRow("")]
+    [DataRow("""
             Lorem ipsum dolor sit amet, consectetur adipiscing elit,
             sed do eiusmod tempor incididunt ut labore et dolore magna
             aliqua. Ut enim ad minim veniam, quis nostrud exercitation
@@ -51,7 +24,11 @@ public class LogFileServiceTests
             esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
             occaecat cupidatat non proident, sunt in culpa qui officia
             deserunt mollit anim id est laborum.
-            """;
+            """)]
+    public async Task TryRead_FileExistsNoRecords_ReturnsFileModelAndNoRecords(string fileContent)
+    {
+        // Arrange
+        var tempFileName = Path.GetTempFileName();
         await File.WriteAllTextAsync(tempFileName, fileContent);
 
         // Act
@@ -72,51 +49,19 @@ public class LogFileServiceTests
     public async Task TryRead_FileExistsWithRecords_ReturnsFileModelAndRecords()
     {
         // Arrange
-        var tempFileName = Path.GetTempFileName();
-        var logRecords = new[]
-        {
-            """
-            confusing file start
-            without records
-            """,
-            "2010-01-01 simple log record",
-            "2010-01-05 2010-01-06 multiple dates",
-            """
-            2010-01-02 log record with empty lines and spaces at the end
-
-               
-            """,
-            """
-            2010-01-03 log
-            record
-            with
-            multiple
-            lines
-            2010-01-OO false record
-             2010-01-07 shifted date
-            """,
-            """
-            2010-01-04 multiline log record
-            with spaces and empty lines at the end
-
-              
-            """
-        };
-        var fileContent = string.Join(Environment.NewLine, logRecords);
-        await File.WriteAllTextAsync(tempFileName, fileContent);
+        const string inputFileName = @".\Assets\logs_input.txt";
+        const string outputFileName = @".\Assets\expected_output_records.txt";
+        var expectedOutput = await File.ReadAllTextAsync(outputFileName);
+        var expectedRecords = expectedOutput.Split(Environment.NewLine + "---" + Environment.NewLine);
 
         // Act
-        var logFile = await _logFileService.TryReadAsync(tempFileName);
+        var logFile = await _logFileService.TryReadAsync(inputFileName);
 
         // Assert
         Assert.IsNotNull(logFile);
-
-        var expectedRecords = logRecords[1..]; // Without the first false lines
+        
         var actualRecords = logFile.Records.Select(r => r.Text).ToList();
         CollectionAssert.AreEqual(expectedRecords, actualRecords);
-
-        // Cleanup
-        File.Delete(tempFileName);
     }
 
     [TestMethod]

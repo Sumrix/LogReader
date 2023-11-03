@@ -1,0 +1,18 @@
+confusing file start
+without records
+2010-01-01 simple log record
+2010-01-05 2010-01-06 multiple dates
+2010-01-02 log record with empty lines and spaces at the end
+
+   
+2010-01-03 log
+record
+with
+multiple
+lines
+2010-01-OO false record
+ 2010-01-07 shifted date
+2010-01-04 multiline log record
+with spaces and empty lines at the end
+
+  

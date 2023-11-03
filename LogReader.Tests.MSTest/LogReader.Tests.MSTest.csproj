@@ -24,4 +24,16 @@
     <ProjectReference Include="..\LogReader.Core\LogReader.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\expected_output_console.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\expected_output_records.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\logs_input.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

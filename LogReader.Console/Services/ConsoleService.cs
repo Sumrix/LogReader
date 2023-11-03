@@ -30,7 +30,7 @@ public class ConsoleService : IConsoleService
         }
 
         Console.CancelKeyPress += (_, _) => {
-            ClearLine(false);
+            ClearLine();
             Console.WriteLine("Exit triggered by Ctrl+C.");
             Environment.Exit(0);
         };
@@ -43,27 +43,36 @@ public class ConsoleService : IConsoleService
             if (i < logFile.Records.Count - 1)
             {
                 Console.Write("Press any key to display the next log record, or Ctrl+C to exit.");
-                var input = Console.ReadLine();
-                if (input == null) // Ctrl+C
-                {
-                    return;
-                }
+                ReadKey();
             }
 
-            ClearLine(true);
+            ClearLine();
         }
 
         Console.WriteLine("No more log records to display.");
+    }
 
-        static void ClearLine(bool oneLineBack)
+    private static void ClearLine()
+    {
+        if (Console.IsOutputRedirected)
         {
-            if (Console.IsOutputRedirected)
-            {
-                return;
-            }
-            Console.SetCursorPosition(0, Console.CursorTop - (oneLineBack ? 1 : 0));
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, Console.CursorTop);
+            return;
+        }
+        Console.SetCursorPosition(0, Console.CursorTop);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, Console.CursorTop);
+    }
+
+    private static void ReadKey()
+    {
+        if (Console.IsOutputRedirected)
+        {
+            Console.ReadLine();
+            Console.ReadLine();
+        }
+        else
+        {
+            Console.ReadKey();
         }
     }
 }
