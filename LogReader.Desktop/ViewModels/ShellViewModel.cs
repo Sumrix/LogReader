@@ -34,18 +34,19 @@ public partial class ShellViewModel : ObservableObject
             AllowMultiple = false
         });
         var fileName = files[0].TryGetLocalPath()!;
-        if (!_logFileService.TryRead(fileName, out var logs))
-        {
-            var msg = MessageBoxManager.GetMessageBoxStandard(
-                "Open Text File",
-                $"{fileName}\r\nFile not found.\r\nCheck the file name and try again.",
-                ButtonEnum.Ok,
-                Icon.Warning);
-            await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
-            return;
-        }
+        //if (!_logFileService.TryRead(fileName, out _ /*logs*/))
+        //{
+        //    var msg = MessageBoxManager.GetMessageBoxStandard(
+        //        "Open Text File",
+        //        $"{fileName}\r\nFile not found.\r\nCheck the file name and try again.",
+        //        ButtonEnum.Ok,
+        //        Icon.Warning);
+        //    await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
+        //    return;
+        //}
 
-        LogViewModel = new(logs);
+        // TODO: set correct logs
+        LogViewModel = new(""/*logs*/);
     }
 
     [RelayCommand]

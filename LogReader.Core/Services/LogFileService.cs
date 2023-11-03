@@ -1,22 +1,58 @@
-﻿using LogReader.Core.Contracts.Services;
+﻿using System.Text;
+using System.Text.RegularExpressions;
+using LogReader.Core.Contracts.Services;
+using LogReader.Core.Models;
 
 namespace LogReader.Core.Services;
 
 /// <summary>
 /// Represents a service that provides file operations for log files.
 /// </summary>
-public class LogFileService : ILogFileService
+public partial class LogFileService : ILogFileService
 {
+    private readonly Regex _logRecordBeginningPattern = MyRegex();
+
     /// <inheritdoc/>
-    public bool TryRead(string fileName, out string? content)
+    public async Task<LogFileModel?> TryReadAsync(string fileName)
     {
         if (!File.Exists(fileName))
         {
-            content = null;
-            return false;
+            return null;
         }
-        
-        content = File.ReadAllText(fileName);
-        return true;
+
+        List<LogRecordModel> recordModels = new();
+        StringBuilder cumulativeLogRecord = new();
+
+        await foreach (var line in File.ReadLinesAsync(fileName))
+        {
+            if (_logRecordBeginningPattern.IsMatch(line))
+            {
+                AppendCurrentRecord();
+                cumulativeLogRecord.Clear();
+                cumulativeLogRecord.Append(line);
+            }
+            else
+            {
+                if (cumulativeLogRecord.Length > 0)
+                {
+                    cumulativeLogRecord.AppendLine().Append(line);
+                }
+            }
+        }
+    
+        AppendCurrentRecord();
+
+        return new(recordModels);
+
+        void AppendCurrentRecord()
+        {
+            if (cumulativeLogRecord.Length > 0)
+            {
+                recordModels.Add(new(cumulativeLogRecord.ToString()));
+            }
+        }
     }
+
+    [GeneratedRegex("^\\d\\d\\d\\d-\\d\\d-\\d\\d")]
+    private static partial Regex MyRegex();
 }

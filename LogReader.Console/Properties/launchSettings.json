@@ -2,7 +2,7 @@
   "profiles": {
     "LogReader.Console": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\Program.cs"
+      "commandLineArgs": "..\\..\\..\\..\\LogReader.Tests.MSTest\\Assets\\logs_input.txt"
     }
   }
 }

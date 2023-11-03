@@ -12,36 +12,68 @@ public class LogFileServiceTests
     {
         _logFileService = new LogFileService();
     }
-
+    
     [TestMethod]
-    public void TryRead_FileExists_ReturnsTrueAndSetsContent()
+    [DataRow("")]
+    [DataRow("""
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+            sed do eiusmod tempor incididunt ut labore et dolore magna
+            aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+            ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            Duis aute irure dolor in reprehenderit in voluptate velit
+            esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+            occaecat cupidatat non proident, sunt in culpa qui officia
+            deserunt mollit anim id est laborum.
+            """)]
+    public async Task TryRead_FileExistsNoRecords_ReturnsFileModelAndNoRecords(string fileContent)
     {
         // Arrange
         var tempFileName = Path.GetTempFileName();
-        File.WriteAllText(tempFileName, "Test content");
+        await File.WriteAllTextAsync(tempFileName, fileContent);
 
         // Act
-        var result = _logFileService.TryRead(tempFileName, out var content);
+        var logFile = await _logFileService.TryReadAsync(tempFileName);
 
         // Assert
-        Assert.IsTrue(result);
-        Assert.AreEqual("Test content", content);
+        Assert.IsNotNull(logFile);
+
+        var expectedRecords = Array.Empty<string>();
+        var actualRecords = logFile.Records.Select(r => r.Text).ToList();
+        CollectionAssert.AreEqual(expectedRecords, actualRecords);
 
         // Cleanup
         File.Delete(tempFileName);
     }
 
     [TestMethod]
-    public void TryRead_FileDoesNotExist_ReturnsFalse()
+    public async Task TryRead_FileExistsWithRecords_ReturnsFileModelAndRecords()
+    {
+        // Arrange
+        const string inputFileName = @".\Assets\logs_input.txt";
+        const string outputFileName = @".\Assets\expected_output_records.txt";
+        var expectedOutput = await File.ReadAllTextAsync(outputFileName);
+        var expectedRecords = expectedOutput.Split(Environment.NewLine + "---" + Environment.NewLine);
+
+        // Act
+        var logFile = await _logFileService.TryReadAsync(inputFileName);
+
+        // Assert
+        Assert.IsNotNull(logFile);
+        
+        var actualRecords = logFile.Records.Select(r => r.Text).ToList();
+        CollectionAssert.AreEqual(expectedRecords, actualRecords);
+    }
+
+    [TestMethod]
+    public async Task TryRead_FileDoesNotExist_ReturnsNull()
     {
         // Arrange
         var nonExistentFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
         // Act
-        var result = _logFileService.TryRead(nonExistentFile, out var content);
+        var logFile = await _logFileService.TryReadAsync(nonExistentFile);
 
         // Assert
-        Assert.IsFalse(result);
-        Assert.IsNull(content);
+        Assert.IsNull(logFile);
     }
 }
