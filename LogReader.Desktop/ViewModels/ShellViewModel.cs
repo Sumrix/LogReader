@@ -17,7 +17,7 @@ public partial class ShellViewModel : ObservableObject
     private readonly IClassicDesktopStyleApplicationLifetime _desktopService;
 
     [ObservableProperty]
-    private LogViewModel? _logViewModel;
+    private LogFileViewModel? _logFileViewModel;
 
     public ShellViewModel(ILogFileService logFileService, IClassicDesktopStyleApplicationLifetime desktopService)
     {
@@ -34,19 +34,19 @@ public partial class ShellViewModel : ObservableObject
             AllowMultiple = false
         });
         var fileName = files[0].TryGetLocalPath()!;
-        //if (!_logFileService.TryRead(fileName, out _ /*logs*/))
-        //{
-        //    var msg = MessageBoxManager.GetMessageBoxStandard(
-        //        "Open Text File",
-        //        $"{fileName}\r\nFile not found.\r\nCheck the file name and try again.",
-        //        ButtonEnum.Ok,
-        //        Icon.Warning);
-        //    await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
-        //    return;
-        //}
-
-        // TODO: set correct logs
-        LogViewModel = new(""/*logs*/);
+        var logFile = await _logFileService.TryReadAsync(fileName);
+        if (logFile is null)
+        {
+            var msg = MessageBoxManager.GetMessageBoxStandard(
+                "Open Text File",
+                $"{fileName}\r\nFile not found.\r\nCheck the file name and try again.",
+                ButtonEnum.Ok,
+                Icon.Warning);
+            await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
+            return;
+        }
+        
+        LogFileViewModel = new(logFile);
     }
 
     [RelayCommand]

@@ -38,7 +38,7 @@ public class LogFileServiceTests
         Assert.IsNotNull(logFile);
 
         var expectedRecords = Array.Empty<string>();
-        var actualRecords = logFile.Records.Select(r => r.Text).ToList();
+        var actualRecords = logFile.Records.Select(r => r.Details).ToList();
         CollectionAssert.AreEqual(expectedRecords, actualRecords);
 
         // Cleanup
@@ -60,7 +60,7 @@ public class LogFileServiceTests
         // Assert
         Assert.IsNotNull(logFile);
         
-        var actualRecords = logFile.Records.Select(r => r.Text).ToList();
+        var actualRecords = logFile.Records.Select(r => r.Details).ToList();
         CollectionAssert.AreEqual(expectedRecords, actualRecords);
     }
 

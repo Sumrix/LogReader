@@ -11,7 +11,7 @@
         x:DataType="viewModels:ShellViewModel"
 >
     <Window.DataTemplates>
-        <DataTemplate DataType="{x:Type viewModels:LogViewModel}">
+        <DataTemplate DataType="{x:Type viewModels:LogFileViewModel}">
             <views:LogView/>
         </DataTemplate>
     </Window.DataTemplates>
@@ -23,6 +23,6 @@
                 <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
         </Menu>
-        <ContentControl Grid.Row="1" Content="{Binding LogViewModel, Mode=OneWay}" />
+        <ContentControl Grid.Row="1" Content="{Binding LogFileViewModel, Mode=TwoWay}" />
     </Grid>
 </Window>

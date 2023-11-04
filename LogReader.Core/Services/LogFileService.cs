@@ -48,7 +48,7 @@ public partial class LogFileService : ILogFileService
         {
             if (cumulativeLogRecord.Length > 0)
             {
-                recordModels.Add(new(cumulativeLogRecord.ToString()));
+                recordModels.Add(new(header, cumulativeLogRecord.ToString()));
             }
         }
     }

@@ -73,7 +73,7 @@ public class App : Application
         services.AddTransient<ShellWindow>();
         services.AddTransient<ShellViewModel>();
 
-        services.AddTransient<LogViewModel>();
+        services.AddTransient<LogFileViewModel>();
 
         // Configuration
     }

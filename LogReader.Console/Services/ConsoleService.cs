@@ -37,7 +37,7 @@ public class ConsoleService : IConsoleService
 
         for (var i = 0; i < logFile.Records.Count; i++)
         {
-            Console.WriteLine(logFile.Records[i].Text);
+            Console.WriteLine(logFile.Records[i].Details);
             Console.WriteLine(new string('-', 80));
 
             if (i < logFile.Records.Count - 1)
