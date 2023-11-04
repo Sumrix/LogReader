@@ -8,11 +8,11 @@ namespace LogReader.Console;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var serviceProvider = ConfigureServices();
         var consoleService = serviceProvider.GetRequiredService<IConsoleService>();
-        consoleService.Run(args);
+        await consoleService.RunAsync(args);
     }
     
     public static IServiceProvider ConfigureServices()

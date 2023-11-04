@@ -9,8 +9,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>Assets\LogReader.ico</ApplicationIcon>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
     <AssemblyName>LogReader</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.5" />
     <PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
     <PackageReference Include="Avalonia.Diagnostics" Version="11.0.5" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.5" />
@@ -42,8 +41,8 @@
     <Compile Update="Views\ShellWindow.axaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
-    <Compile Update="Views\LogView.axaml.cs">
-      <DependentUpon>%(Filename)</DependentUpon>
+    <Compile Update="Views\LogFileView.axaml.cs">
+      <DependentUpon>LogFileView.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

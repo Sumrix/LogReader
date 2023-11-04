@@ -1,0 +1,22 @@
+2010-01-01 01:01:01.000 +00:00 simple log record
+--------------------------------------------------------------------------------
+Press any key to display the next log record, or Ctrl+C to exit.2010-01-05 01:01:01.000 +00:00 2010-01-06 01:01:01.000 +00:00 multiple dates
+--------------------------------------------------------------------------------
+Press any key to display the next log record, or Ctrl+C to exit.2010-01-02 01:01:01.000 +00:00 log record with empty lines and spaces at the end
+
+   
+--------------------------------------------------------------------------------
+Press any key to display the next log record, or Ctrl+C to exit.2010-01-03 01:01:01.000 +00:00 log
+record
+with
+multiple
+lines
+2010-01-OO 01:01:01.000 +00:00 false record
+ 2010-01-07 01:01:01.000 +00:00 shifted date
+--------------------------------------------------------------------------------
+Press any key to display the next log record, or Ctrl+C to exit.2010-01-04 01:01:01.000 +00:00 multiline log record
+with spaces and empty lines at the end
+
+  
+--------------------------------------------------------------------------------
+No more log records to display.

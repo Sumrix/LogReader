@@ -2,62 +2,62 @@
 
 namespace LogReader.Tests.MSTest;
 
+using System;
+
 [TestClass]
 public class ProgramTests
 {
     [TestMethod]
-    public void Main_FileExists_ShowsContent()
+    public async Task Main_FileExists_ShowsContent()
     {
         //Arrange
-        var tempFileName = Path.GetTempFileName();
-        const string fileContent = "Test content";
-        File.WriteAllText(tempFileName, fileContent);
-
-        var stringWriter = new StringWriter();
-        System.Console.SetOut(stringWriter);
-
+        const string inputFileName = @".\Assets\logs_input.txt";
+        const string outputFileName = @".\Assets\expected_output_console.txt";
+        var expectedOutput = await File.ReadAllTextAsync(outputFileName);
+        var outputStream = new StringWriter();
+        var inputStream = new StringReader(string.Join("", Enumerable.Repeat(Environment.NewLine, 5)));
+        
+        Console.SetOut(outputStream);
+        Console.SetIn(inputStream);
+        
         //Act
-        Program.Main(new[] { tempFileName });
+        await Program.Main(new[] { inputFileName });
 
         //Assert
-        var output = stringWriter.ToString();
-        Assert.AreEqual(fileContent + Environment.NewLine, output);
-
-        // Cleanup
-        File.Delete(tempFileName);
+        var output = outputStream.ToString();
+        Assert.AreEqual(expectedOutput, output);
     }
 
     [TestMethod]
-    public void Main_FileDoesNotExist_ShowsError()
+    public async Task Main_FileDoesNotExist_ShowsError()
     {
         //Arrange
         var nonExistentFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
         var stringWriter = new StringWriter();
-        System.Console.SetOut(stringWriter);
+        Console.SetOut(stringWriter);
 
         //Act
-        Program.Main(new[] { nonExistentFile });
+        await Program.Main(new[] { nonExistentFile });
 
         //Assert
         var output = stringWriter.ToString();
-        Assert.AreEqual(
-            $"Error: File \"{nonExistentFile}\" does not exist or cannot be accessed. Please check the file path and try again."
-            + Environment.NewLine, output);
+        Assert.AreEqual($"Error: File \"{nonExistentFile}\" does not exist or cannot be accessed. " +
+                        $"Please check the file path and try again." + Environment.NewLine, output);
     }
 
     [TestMethod]
-    public void Main_NoParams_ShowsError()
+    public async Task Main_NoParams_ShowsError()
     {
         //Arrange
         var stringWriter = new StringWriter();
-        System.Console.SetOut(stringWriter);
+        Console.SetOut(stringWriter);
 
         //Act
-        Program.Main(Array.Empty<string>());
+        await Program.Main(Array.Empty<string>());
 
         //Assert
         var output = stringWriter.ToString();
-        Assert.AreEqual($"Error: The file name cannot be empty. Please enter a file name." + Environment.NewLine, output);
+        Assert.AreEqual("Error: The file name cannot be empty. Please enter a file name." + Environment.NewLine, output);
     }
 }
