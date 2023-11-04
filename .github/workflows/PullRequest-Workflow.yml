@@ -1,13 +1,11 @@
 name: Build and Test
 
 on:
-  # push:
-  #   branches: [ "master" ]
   pull_request:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  test:
+  build_and_test:
     runs-on: windows-latest
     steps:
     - name: Checkout code
@@ -20,6 +18,9 @@ jobs:
       with:
         dotnet-version: 7.0.x
 
+    - name: Restore dependencies
+      run: dotnet restore
+    
     - name: Build
       run: dotnet build --no-restore --configuration Release
 
