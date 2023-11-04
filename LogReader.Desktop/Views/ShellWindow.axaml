@@ -7,8 +7,8 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="LogReader.Desktop.Views.ShellWindow"
         Icon="/Assets/LogReader.ico"
-        Title="LogReader"
         x:DataType="viewModels:ShellViewModel"
+        Title="{Binding Title}"
 >
     <Window.DataTemplates>
         <DataTemplate DataType="{x:Type viewModels:LogFileViewModel}">
@@ -22,6 +22,7 @@
                 <Separator/>
                 <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
+            <MenuItem Header="_Refresh" Command="{Binding Refresh}" />
         </Menu>
         <ContentControl Grid.Row="1" Content="{Binding LogFileViewModel, Mode=TwoWay}" />
     </Grid>

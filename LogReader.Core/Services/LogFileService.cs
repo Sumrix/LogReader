@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using CommunityToolkit.HighPerformance.Buffers;
 using LogReader.Core.Contracts.Services;
+using LogReader.Core.Helpers;
 using LogReader.Core.Models;
 
 namespace LogReader.Core.Services;
@@ -34,7 +35,7 @@ public partial class LogFileService : ILogFileService
         StringBuilder cumulativeLogRecord = new();
         const int maxHeaderSize = 100;
         var header = "";
-        var data = DateTime.Now;
+        var data = DateTimeOffset.Now;
 
         using var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize);
         using var streamReader = new StreamReader(fileStream);
@@ -45,8 +46,8 @@ public partial class LogFileService : ILogFileService
             {
                 AppendCurrentRecord();
                 cumulativeLogRecord.Clear();
-                header = line[..Math.Min(line.Length, maxHeaderSize)] + (line.Length > maxHeaderSize ? "..." : "");
-                data = DateTime.Parse(header[..30]);
+                header = line.TruncateRight(maxHeaderSize, true);
+                data = DateTimeOffset.Parse(header[..30]);
                 cumulativeLogRecord.Append(line.AsSpan(31));
             }
             else

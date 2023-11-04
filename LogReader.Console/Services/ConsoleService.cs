@@ -4,6 +4,7 @@ using LogReader.Core.Contracts.Services;
 namespace LogReader.Console.Services;
 
 using System;
+using System.Globalization;
 
 public class ConsoleService : IConsoleService
 {
@@ -37,7 +38,8 @@ public class ConsoleService : IConsoleService
 
         for (var i = 0; i < logFile.Records.Count; i++)
         {
-            Console.WriteLine(logFile.Records[i].Details);
+            var record = logFile.Records[i];
+            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.fff zzz} {1}", record.Data, record.Details));
             Console.WriteLine(new string('-', 80));
 
             if (i < logFile.Records.Count - 1)

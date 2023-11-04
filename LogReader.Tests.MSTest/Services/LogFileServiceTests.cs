@@ -1,4 +1,5 @@
-﻿using LogReader.Core.Contracts.Services;
+﻿using System.Globalization;
+using LogReader.Core.Contracts.Services;
 using LogReader.Core.Services;
 
 namespace LogReader.Tests.MSTest.Services;
@@ -60,7 +61,9 @@ public class LogFileServiceTests
         // Assert
         Assert.IsNotNull(logFile);
         
-        var actualRecords = logFile.Records.Select(r => r.Details).ToList();
+        var actualRecords = logFile.Records
+            .Select(r => string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.fff zzz} {1}", r.Data, r.Details))
+            .ToList();
         CollectionAssert.AreEqual(expectedRecords, actualRecords);
     }
 
