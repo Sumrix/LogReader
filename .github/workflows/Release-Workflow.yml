@@ -38,6 +38,7 @@ jobs:
           git log --pretty=format:"- %s" $PREVIOUS_TAG..$LATEST_TAG >> $GITHUB_ENV
         fi
         echo 'EOF' >> $GITHUB_ENV
+      shell: bash
 
     - name: Create Release
       id: create_release
