@@ -13,4 +13,11 @@ public interface ILogFileService
     /// <param name="fileName">The name or path of the file to read.</param>
     /// <returns>The data of the log file if the file was read successfully; otherwise, null.</returns>
     Task<LogFileModel?> TryReadAsync(string fileName);
+
+    /// <summary>
+    /// Attempts to read the content of the specified log file.
+    /// </summary>
+    /// <param name="fileName">The name or path of the file to read.</param>
+    /// <returns>The data of the log file if the file was read successfully; otherwise, null.</returns>
+    LogFileModel? TryRead(string fileName);
 }

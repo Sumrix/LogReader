@@ -1,10 +1,8 @@
 ﻿using System.Threading.Tasks;
-
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
 using LogReader.Core.Contracts.Services;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
