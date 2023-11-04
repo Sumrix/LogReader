@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Reflection;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
@@ -49,7 +48,7 @@ public class App : Application
 
     private void StartHost(string[]? args)
     {
-        var appLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
+        var appLocation = Path.GetDirectoryName(System.AppContext.BaseDirectory)!;
 
         _host = Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration(c => { c.SetBasePath(appLocation); })
@@ -73,7 +72,7 @@ public class App : Application
         services.AddTransient<ShellWindow>();
         services.AddTransient<ShellViewModel>();
 
-        services.AddTransient<LogViewModel>();
+        services.AddTransient<LogFileViewModel>();
 
         // Configuration
     }

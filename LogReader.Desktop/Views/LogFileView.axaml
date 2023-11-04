@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:LogReader.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="LogReader.Desktop.Views.LogView"
+             x:DataType="viewModels:LogFileViewModel"
+>
+    <Design.DataContext>
+        <viewModels:LogFileViewModel />
+    </Design.DataContext>
+    <Grid ColumnDefinitions="*,4,*">
+
+        <!-- Logs list -->
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding LogFile.Records, Mode=OneWay}"
+                 SelectedItem="{Binding SelectedLogRecord, Mode=OneWayToSource}"
+                 FontSize="10"
+                 FontFamily="Consolas"
+                 Padding="10">
+
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </ListBox.Styles>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Header, Mode=OneTime}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+
+        <GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
+
+        <!-- Log details -->
+        <TextBox Grid.Column="2"
+                 Text="{Binding SelectedLogRecord.Details, Mode=OneWay}"
+                 AcceptsReturn="True"
+                 IsReadOnly="True"
+                 TextWrapping="Wrap"
+                 FontFamily="Consolas"/>
+    </Grid>
+</UserControl>
