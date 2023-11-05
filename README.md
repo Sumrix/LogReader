@@ -44,7 +44,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) 
 
 ## 🛠️ Development Status
 
-![Build and Upload Release](https://github.com/Sumrix/LogReader/actions/workflows/Release-Workflow.yml/badge.svg)
+![Build and Upload Release](https://github.com/Sumrix/LogReader/actions/workflows/release.yml/badge.svg)
 
 ## 🖼️ Screenshots
 
