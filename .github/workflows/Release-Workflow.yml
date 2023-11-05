@@ -26,18 +26,17 @@ jobs:
       run: Compress-Archive -Path publish/* -DestinationPath LogReader-${{ github.ref_name }}-Windows-x64.zip
     
     - name: Generate changelog
-      id: changelog
       run: |
-        echo 'CHANGELOG<<EOF' >> $GITHUB_ENV
+        echo "CHANGELOG<<EOF" >> $GITHUB_ENV
         git fetch --tags
         LATEST_TAG=$(git describe --tags --abbrev=0 --tags)
         PREVIOUS_TAG=$(git describe --tags --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))
         if [ -z "$PREVIOUS_TAG" ]; then
-          git log --pretty=format:"- %s" $LATEST_TAG..HEAD >> $GITHUB_ENV
+          git log --pretty=format:"- %s" $LATEST_TAG..HEAD
         else
-          git log --pretty=format:"- %s" $PREVIOUS_TAG..$LATEST_TAG >> $GITHUB_ENV
-        fi
-        echo 'EOF' >> $GITHUB_ENV
+          git log --pretty=format:"- %s" $PREVIOUS_TAG..$LATEST_TAG
+        fi >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
       shell: bash
 
     - name: Create Release
