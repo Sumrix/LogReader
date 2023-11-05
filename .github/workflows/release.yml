@@ -1,0 +1,39 @@
+name: Build and Upload Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build_and_release:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+    
+    - name: Publish Release
+      run: dotnet publish ./LogReader.Desktop/LogReader.Desktop.csproj -c Release -r win-x64 --no-self-contained --p:PublishSingleFile=true -o publish
+    
+    - name: Zip the published app
+      run: Compress-Archive -Path publish/* -DestinationPath LogReader-${{ github.ref_name }}-Windows-x64.zip
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ github.ref }}
+        draft: false
+        prerelease: false
+        files: LogReader*.zip
+       # name: ${{ github.ref_name }}
+       # body: 'See the [commit history](https://github.com/Sumrix/LogReader/commits/master) for changes.'
+        generate_release_notes: true
