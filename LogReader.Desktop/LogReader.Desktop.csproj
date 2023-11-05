@@ -41,8 +41,8 @@
     <Compile Update="Views\ShellWindow.axaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
-    <Compile Update="Views\LogFileView.axaml.cs">
-      <DependentUpon>LogFileView.axaml</DependentUpon>
+    <Compile Update="Views\FileView.axaml.cs">
+      <DependentUpon>FileView.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

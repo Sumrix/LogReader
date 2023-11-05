@@ -5,17 +5,17 @@
              xmlns:viewModels="clr-namespace:LogReader.Desktop.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LogReader.Desktop.Views.LogView"
-             x:DataType="viewModels:LogFileViewModel"
+             x:DataType="viewModels:FileViewModel"
 >
     <Design.DataContext>
-        <viewModels:LogFileViewModel />
+        <viewModels:FileViewModel />
     </Design.DataContext>
     <Grid ColumnDefinitions="*,4,*">
 
         <!-- Logs list -->
         <ListBox Grid.Column="0"
-                 ItemsSource="{Binding LogFile.Records, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedLogRecord, Mode=OneWayToSource}"
+                 ItemsSource="{Binding File.Records, Mode=OneWay}"
+                 SelectedItem="{Binding SelectedRecord, Mode=OneWayToSource}"
                  FontSize="10"
                  FontFamily="Consolas"
                  Padding="10">
@@ -39,7 +39,7 @@
 
         <!-- Log details -->
         <TextBox Grid.Column="2"
-                 Text="{Binding SelectedLogRecord.Details, Mode=OneWay}"
+                 Text="{Binding SelectedRecord.Details, Mode=OneWay}"
                  AcceptsReturn="True"
                  IsReadOnly="True"
                  TextWrapping="Wrap"

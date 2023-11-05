@@ -63,7 +63,7 @@ public class App : Application
         var desktop = (IClassicDesktopStyleApplicationLifetime)Current!.ApplicationLifetime!;
 
         // Core Services
-        services.AddSingleton<ILogFileService, LogFileService>();
+        services.AddSingleton<IFileService, FileService>();
 
         // Services
         services.AddSingleton(desktop);
@@ -72,7 +72,7 @@ public class App : Application
         services.AddTransient<ShellWindow>();
         services.AddTransient<ShellViewModel>();
 
-        services.AddTransient<LogFileViewModel>();
+        services.AddTransient<FileViewModel>();
 
         // Configuration
     }

@@ -10,36 +10,31 @@ namespace LogReader.Core.Services;
 /// <summary>
 /// Represents a service that provides file operations for log files.
 /// </summary>
-public partial class LogFileService : ILogFileService
+public partial class FileService : IFileService
 {
+    private const int BufferSize = 65536; // For file load speed optimization
     private readonly Regex _logRecordBeginningPattern = MyRegex();
 
-    private const int BufferSize = 65536;
+    /// <inheritdoc />
+    public async Task<FileModel?> TryReadAsync(string filePath) => await Task.Run(() => TryRead(filePath));
     
-    /// <inheritdoc/>
-    public async Task<LogFileModel?> TryReadAsync(string fileName)
+    private FileModel? TryRead(string filePath)
     {
-        return await Task.Run(() => TryRead(fileName));
-    }
-
-    /// <inheritdoc/>
-    public LogFileModel? TryRead(string fileName)
-    {
-        if (!File.Exists(fileName))
+        if (!File.Exists(filePath))
         {
             return null;
         }
 
-        var stringPool = new StringPool();
-        List<LogRecordModel> recordModels = new();
+        List<RecordModel> recordModels = new();
         StringBuilder cumulativeLogRecord = new();
         const int maxHeaderSize = 100;
         var header = "";
         var data = DateTimeOffset.Now;
+        var stringPool = new StringPool(); // For memory optimization
 
-        using var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize);
+        using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize);
         using var streamReader = new StreamReader(fileStream);
-        
+
         while (streamReader.ReadLine() is { } line)
         {
             if (_logRecordBeginningPattern.IsMatch(line.AsSpan()))
@@ -58,7 +53,7 @@ public partial class LogFileService : ILogFileService
                 }
             }
         }
-    
+
         AppendCurrentRecord();
 
         return new(recordModels);
@@ -71,7 +66,7 @@ public partial class LogFileService : ILogFileService
             }
         }
     }
-
+    
     [GeneratedRegex("^\\d\\d\\d\\d-\\d\\d-\\d\\d")]
     private static partial Regex MyRegex();
 }

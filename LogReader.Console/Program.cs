@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LogReader.Console;
 
-public class Program
+public static class Program
 {
     public static async Task Main(string[] args)
     {
@@ -14,12 +14,12 @@ public class Program
         var consoleService = serviceProvider.GetRequiredService<IConsoleService>();
         await consoleService.RunAsync(args);
     }
-    
-    public static IServiceProvider ConfigureServices()
+
+    private static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton<ILogFileService, LogFileService>();
+        services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IConsoleService, ConsoleService>();
 
         return services.BuildServiceProvider();

@@ -8,11 +8,11 @@ using System.Globalization;
 
 public class ConsoleService : IConsoleService
 {
-    private readonly ILogFileService _logFileService;
+    private readonly IFileService _fileService;
 
-    public ConsoleService(ILogFileService logFileService)
+    public ConsoleService(IFileService fileService)
     {
-        _logFileService = logFileService;
+        _fileService = fileService;
     }
 
     public async Task RunAsync(string[] args)
@@ -23,7 +23,7 @@ public class ConsoleService : IConsoleService
             return;
         }
         
-        var logFile = await _logFileService.TryReadAsync(fileName);
+        var logFile = await _fileService.TryReadAsync(fileName);
         if (logFile is null)
         {
             Console.WriteLine($"Error: File \"{fileName}\" does not exist or cannot be accessed. Please check the file path and try again.");
@@ -39,7 +39,7 @@ public class ConsoleService : IConsoleService
         for (var i = 0; i < logFile.Records.Count; i++)
         {
             var record = logFile.Records[i];
-            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.fff zzz} {1}", record.Data, record.Details));
+            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.fff zzz} {1}", record.Date, record.Details));
             Console.WriteLine(new string('-', 80));
 
             if (i < logFile.Records.Count - 1)

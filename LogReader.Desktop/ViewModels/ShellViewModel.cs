@@ -12,7 +12,7 @@ namespace LogReader.Desktop.ViewModels;
 
 public partial class ShellViewModel : ObservableObject
 {
-    private readonly ILogFileService _logFileService;
+    private readonly IFileService _fileService;
     private readonly IClassicDesktopStyleApplicationLifetime _desktopService;
     private string? _fileName;
 
@@ -20,11 +20,11 @@ public partial class ShellViewModel : ObservableObject
     private string _title = "Log Reader";
 
     [ObservableProperty]
-    private LogFileViewModel? _logFileViewModel;
+    private FileViewModel? _fileViewModel;
 
-    public ShellViewModel(ILogFileService logFileService, IClassicDesktopStyleApplicationLifetime desktopService)
+    public ShellViewModel(IFileService fileService, IClassicDesktopStyleApplicationLifetime desktopService)
     {
-        _logFileService = logFileService;
+        _fileService = fileService;
         _desktopService = desktopService;
     }
 
@@ -61,7 +61,7 @@ public partial class ShellViewModel : ObservableObject
             return;
         }
 
-        var logFile = await _logFileService.TryReadAsync(_fileName);
+        var logFile = await _fileService.TryReadAsync(_fileName);
         if (logFile is null)
         {
             var msg = MessageBoxManager.GetMessageBoxStandard(
@@ -73,6 +73,6 @@ public partial class ShellViewModel : ObservableObject
             return;
         }
 
-        LogFileViewModel = new(logFile);
+        FileViewModel = new(logFile);
     }
 }
