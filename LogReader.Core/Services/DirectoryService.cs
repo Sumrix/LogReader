@@ -5,8 +5,16 @@ namespace LogReader.Core.Services;
 
 public class DirectoryService : IDirectoryService
 {
-    public DirectoryModel? TryLoad(string directoryPath) =>
-        Directory.Exists(directoryPath)
-            ? new(directoryPath, Directory.GetFiles(directoryPath))
-            : null;
+    public DirectoryModel? TryLoad(string directoryPath)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            return null;
+        }
+
+        var fileNames = Directory.GetFiles(directoryPath)
+            .Select(Path.GetFileName)
+            .ToList();
+        return new(directoryPath, fileNames!);
+    }
 }

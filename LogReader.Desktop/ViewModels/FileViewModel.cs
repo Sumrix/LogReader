@@ -18,8 +18,8 @@ public partial class FileViewModel : ObservableObject
         _file = file;
         _selectedRecord = file.Records.FirstOrDefault() ?? new("", DateTime.Now, "");
     }
-
-    // For designer
+    
+    // For xaml previewer
     public FileViewModel()
     {
         var records = Enumerable.Range(0, 10)
@@ -28,4 +28,6 @@ public partial class FileViewModel : ObservableObject
         _file = new(records);
         _selectedRecord = _file.Records[0];
     }
+
+    public static FileViewModel Empty { get; } = new(new(Array.Empty<RecordModel>()));
 }

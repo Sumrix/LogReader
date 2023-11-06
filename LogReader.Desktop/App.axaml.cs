@@ -5,6 +5,8 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using LogReader.Core.Contracts.Services;
 using LogReader.Core.Services;
+using LogReader.Desktop.Contracts.Services;
+using LogReader.Desktop.Services;
 using LogReader.Desktop.ViewModels;
 using LogReader.Desktop.Views;
 
@@ -58,21 +60,21 @@ public class App : Application
         _host.Start();
     }
 
-    private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         var desktop = (IClassicDesktopStyleApplicationLifetime)Current!.ApplicationLifetime!;
 
         // Core Services
         services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<IDirectoryService, DirectoryService>();
 
         // Services
         services.AddSingleton(desktop);
+        services.AddSingleton<IDirectoryViewModelFactory, DirectoryViewModelFactory>();
 
         // Views and ViewModels
         services.AddTransient<ShellWindow>();
         services.AddTransient<ShellViewModel>();
-
-        services.AddTransient<FileViewModel>();
 
         // Configuration
     }

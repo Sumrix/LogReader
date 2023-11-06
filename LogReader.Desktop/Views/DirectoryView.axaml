@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:LogReader.Desktop.Views"
+             xmlns:viewModels="clr-namespace:LogReader.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="LogReader.Desktop.Views.DirectoryView"
+             x:DataType="viewModels:DirectoryViewModel"
+>
+    <Design.DataContext>
+        <viewModels:DirectoryViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto,*">
+        <Grid ColumnDefinitions="Auto,Auto">
+            <ComboBox Grid.Column="0"
+                      ItemsSource="{Binding FileNames}"
+                      SelectedItem="{Binding SelectedFileName}"
+                      Width="250"/>
+            <Button Grid.Column="1" Content="Refresh File" Command="{Binding Refresh}"/>
+        </Grid>
+        <ContentControl Grid.Row="1" Content="{Binding SelectedFile, Mode=TwoWay}">
+            <ContentControl.ContentTemplate>
+                <DataTemplate>
+                    <views:FileView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
+    </Grid>
+</UserControl>

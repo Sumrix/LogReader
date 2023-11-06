@@ -49,7 +49,7 @@ public class LogFileServiceTests
     }
 
     [TestMethod]
-    public async Task TryRead_FileWithRecords_ReturnsFileWithRecords()
+    public async Task TryReadAsync_FileWithRecords_ReturnsFileWithRecords()
     {
         // Arrange
         const string inputFileName = @".\Assets\logs_input.txt";
@@ -68,7 +68,7 @@ public class LogFileServiceTests
     }
 
     [TestMethod]
-    public async Task TryRead_FileDoesNotExist_ReturnsNull()
+    public async Task TryReadAsync_FileDoesNotExist_ReturnsNull()
     {
         // Arrange
         var nonExistentFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());

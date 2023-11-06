@@ -8,57 +8,40 @@
         x:Class="LogReader.Desktop.Views.ShellWindow"
         Icon="/Assets/LogReader.ico"
         x:DataType="viewModels:ShellViewModel"
-        Title="{Binding Title}"
+        Title="Log Reader"
 >
-    <Window.DataTemplates>
-        <DataTemplate DataType="{x:Type viewModels:FileViewModel}">
-            <views:LogView/>
-        </DataTemplate>
-    </Window.DataTemplates>
-    <Grid RowDefinitions="Auto,*">
-        <Menu Grid.Row="0">
+    <Design.DataContext>
+        <viewModels:ShellViewModel />
+    </Design.DataContext>
+    
+    <DockPanel >
+        <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_Open..." Command="{Binding Open}"/>
+                <MenuItem Header="_Open File..." Command="{Binding OpenFile}"/>
+                <MenuItem Header="_Open Directory..." Command="{Binding OpenDirectory}"/>
+                <MenuItem Header="_Close Directory"
+                          Command="{Binding Close}"
+                          CommandParameter="{Binding #Directories.SelectedIndex}" />
                 <Separator/>
                 <MenuItem Header="_Exit" Command="{Binding Exit}"/>
             </MenuItem>
-            <MenuItem Header="_Refresh" Command="{Binding Refresh}" />
         </Menu>
-        <ContentControl Grid.Row="1" Content="{Binding FileViewModel, Mode=TwoWay}" />
-    </Grid>
-    <!--<TabControl>
-        <TabItem Header="...tform\GtG.Server\log" VerticalContentAlignment="Center" >
-            <Grid RowDefinitions="Auto,*">
-                <ComboBox SelectedIndex="0" Grid.Row="0">
-                    <ComboBoxItem>log1.log</ComboBoxItem>
-                    <ComboBoxItem>errors2023</ComboBoxItem>
-                    <ComboBoxItem>data2021</ComboBoxItem>
-                </ComboBox>
-                <ContentControl
-                    Grid.Row="1"
-                    Content="{Binding LogFileViewModel, Mode=TwoWay}" />
-            </Grid>
-        </TabItem>
-        <TabItem>
-            <TabItem.Header>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center">Triangle</TextBlock>
-                    <Button Background="White" Foreground="DarkGray">x</Button>
-                </StackPanel>
-            </TabItem.Header>
-            <StackPanel>
-                <TextBlock Text="I am in the triangle page ! I'll put a button to show you that each page contains what you want." HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <Button>A button in the triangle page !</Button>
-            </StackPanel>
-        </TabItem>
-        <TabItem>
-            <TabItem.Header>
-                <TextBlock VerticalAlignment="Center">Square</TextBlock>
-            </TabItem.Header>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <Rectangle Fill="Blue" Width="63" Height="41"/>              
-            </StackPanel>
-        </TabItem>
-    </TabControl>-->
+        <TabControl Name="Directories"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding Directories}"
+                    SelectedItem="{Binding SelectedDirectory}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Name="TabName"
+                               Text="{Binding Path}"
+                               TextAlignment="Left"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <views:DirectoryView />
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+    </DockPanel>
 </Window>

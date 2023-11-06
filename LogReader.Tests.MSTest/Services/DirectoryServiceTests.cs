@@ -23,9 +23,11 @@ public class DirectoryServiceTests
         var expectedFiles = new List<string>();
         for (var i = 0; i < expectedFilesCount; i++)
         {
-            var fileName = Path.Combine(notEmptyDirectoryPath, Guid.NewGuid().ToString());
+            var fileName = Path.GetRandomFileName();
+            var filePath = Path.Combine(notEmptyDirectoryPath, fileName);
+
             expectedFiles.Add(fileName);
-            File.Create(fileName).Close();
+            File.Create(filePath).Close();
         }
 
         // Act

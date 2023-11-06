@@ -21,6 +21,7 @@ public static class Program
 
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IConsoleService, ConsoleService>();
+        services.AddSingleton<IDirectoryService, DirectoryService>();
 
         return services.BuildServiceProvider();
     }
