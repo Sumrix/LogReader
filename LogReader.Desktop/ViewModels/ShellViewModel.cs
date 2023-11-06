@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LogReader.Core.Contracts.Services;
-using LogReader.Core.Helpers;
+using LogReader.Desktop.Contracts.Services;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 
@@ -12,67 +13,103 @@ namespace LogReader.Desktop.ViewModels;
 
 public partial class ShellViewModel : ObservableObject
 {
-    private readonly ILogFileService _logFileService;
     private readonly IClassicDesktopStyleApplicationLifetime _desktopService;
-    private string? _fileName;
+    private readonly IDirectoryViewModelFactory _directoryViewModelFactory;
 
     [ObservableProperty]
-    private string _title = "Log Reader";
+    private ObservableCollection<DirectoryViewModel> _directories;
 
     [ObservableProperty]
-    private LogFileViewModel? _logFileViewModel;
+    private DirectoryViewModel? _selectedDirectory;
 
-    public ShellViewModel(ILogFileService logFileService, IClassicDesktopStyleApplicationLifetime desktopService)
+    public ShellViewModel(
+        IClassicDesktopStyleApplicationLifetime desktopService,
+        IDirectoryViewModelFactory directoryViewModelFactory)
     {
-        _logFileService = logFileService;
         _desktopService = desktopService;
+        _directoryViewModelFactory = directoryViewModelFactory;
+        Directories = new();
+    }
+
+    // For xaml previewer
+    public ShellViewModel()
+    {
+        _desktopService = null!;
+        _directoryViewModelFactory = null!;
+        Directories = new()
+        {
+            new(new("my/first/long/path", Array.Empty<string>()), null!),
+            new(new("my/second/long/path", Array.Empty<string>()), null!),
+            new(new("my/third/long/path", Array.Empty<string>()), null!)
+        };
     }
 
     [RelayCommand]
-    public async Task Open()
+    public async Task OpenDirectory()
+    {
+        var folders = await _desktopService.MainWindow!.StorageProvider.OpenFolderPickerAsync(new()
+        {
+            Title = "Open Folder",
+            AllowMultiple = false
+        });
+        var folderName = folders[0].Path.AbsolutePath;
+
+        var directoryViewModel = _directoryViewModelFactory.TryCreateViewModel(folderName);
+        if (directoryViewModel is null)
+        {
+            var msg = MessageBoxManager.GetMessageBoxStandard(
+                "Open Folder",
+                $"{folderName}\r\nFolder not found.\r\nCheck the folder name and try again.",
+                ButtonEnum.Ok,
+                Icon.Warning);
+            await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
+        }
+        else
+        {
+            Directories.Add(directoryViewModel);
+            SelectedDirectory = directoryViewModel;
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenFile()
     {
         var files = await _desktopService.MainWindow!.StorageProvider.OpenFilePickerAsync(new()
         {
             Title = "Open Text File",
             AllowMultiple = false
         });
-        _fileName = files[0].TryGetLocalPath()!;
-        Title = $"Log Reader - {_fileName.TruncateLeft(60, true)}";
+        var filePath = files[0].Path.AbsolutePath;
+        var directoryPath = Path.GetDirectoryName(filePath)!;
+        var fileName = Path.GetFileName(filePath);
+        
+        var directoryViewModel = _directoryViewModelFactory.TryCreateViewModel(directoryPath);
+        if (directoryViewModel is null)
+        {
+            var msg = MessageBoxManager.GetMessageBoxStandard(
+                "Open Text File",
+                $"{directoryPath}\r\nFolder not found.\r\nCheck the folder name and try again.",
+                ButtonEnum.Ok,
+                Icon.Warning);
+            await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
+        }
+        else
+        {
+            Directories.Add(directoryViewModel);
+            SelectedDirectory = directoryViewModel;
+            directoryViewModel.SelectedFileName = fileName;
+        }
+    }
 
-        await ReloadLogFile();
+    [RelayCommand]
+    public void Close(int directoryIndex)
+    {
+        Directories.RemoveAt(directoryIndex);
     }
 
     [RelayCommand]
     public void Exit()
     {
         _desktopService.MainWindow?.Close();
-    }
-
-    [RelayCommand]
-    public async Task Refresh()
-    {
-        await ReloadLogFile();
-    }
-
-    private async Task ReloadLogFile()
-    {
-        if (_fileName is null)
-        {
-            return;
-        }
-
-        var logFile = await _logFileService.TryReadAsync(_fileName);
-        if (logFile is null)
-        {
-            var msg = MessageBoxManager.GetMessageBoxStandard(
-                "Open Text File",
-                $"{_fileName}\r\nFile not found.\r\nCheck the file name and try again.",
-                ButtonEnum.Ok,
-                Icon.Warning);
-            await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
-            return;
-        }
-
-        LogFileViewModel = new(logFile);
     }
 }

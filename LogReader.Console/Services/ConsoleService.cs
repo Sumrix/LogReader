@@ -4,33 +4,75 @@ using LogReader.Core.Contracts.Services;
 namespace LogReader.Console.Services;
 
 using System;
-using System.Globalization;
 
 public class ConsoleService : IConsoleService
 {
-    private readonly ILogFileService _logFileService;
+    private readonly IFileService _fileService;
+    private readonly IDirectoryService _directoryService;
 
-    public ConsoleService(ILogFileService logFileService)
+    public ConsoleService(IFileService fileService, IDirectoryService directoryService)
     {
-        _logFileService = logFileService;
+        _fileService = fileService;
+        _directoryService = directoryService;
     }
 
     public async Task RunAsync(string[] args)
     {
-        if (args is not [{ } fileName])
+        if (args is not [{ } directoryPath])
         {
-            Console.WriteLine("Error: The file name cannot be empty. Please enter a file name.");
-            return;
-        }
-        
-        var logFile = await _logFileService.TryReadAsync(fileName);
-        if (logFile is null)
-        {
-            Console.WriteLine($"Error: File \"{fileName}\" does not exist or cannot be accessed. Please check the file path and try again.");
+            Console.WriteLine("Error: The directory path cannot be empty. Please enter a directory path.");
             return;
         }
 
-        Console.CancelKeyPress += (_, _) => {
+        var fileName = ChooseFile(directoryPath);
+        if (fileName is null)
+        {
+            return;
+        }
+        
+        Console.WriteLine($"Listing log records from {fileName}:");
+        await OpenFile(fileName);
+    }
+
+    private string? ChooseFile(string directoryPath)
+    {
+        var directory = _directoryService.TryLoad(directoryPath);
+        if (directory is null)
+        {
+            Console.WriteLine($"Error: Directory \"{directoryPath}\" does not exist or cannot be accessed. " +
+                              $"Please check the directory path and try again.");
+            return null;
+        }
+
+        Console.WriteLine("Files in the directory:");
+        for (var i = 0; i < directory.FileNames.Count; i++)
+        {
+            Console.WriteLine($"#{i+1,-3} {directory.FileNames[i],10}");
+        }
+        
+        Console.Write("Enter file number to open: ");
+        var input = Console.ReadLine();
+        if (!int.TryParse(input, out var number) || number < 1 || number > directory.FileNames.Count)
+        {
+            Console.WriteLine("Invalid number.");
+            return null;
+        }
+
+        return directory.FileNames[number - 1];
+    }
+
+    private async Task OpenFile(string fileName)
+    {
+        var logFile = await _fileService.TryReadAsync(fileName);
+        if (logFile is null)
+        {
+            Console.WriteLine(
+                $"Error: File \"{fileName}\" does not exist or cannot be accessed. Please check the file path and try again.");
+            return;
+        }
+
+        Console.CancelKeyPress += (_, _) =>
+        {
             ClearLine();
             Console.WriteLine("Exit triggered by Ctrl+C.");
             Environment.Exit(0);
@@ -39,7 +81,7 @@ public class ConsoleService : IConsoleService
         for (var i = 0; i < logFile.Records.Count; i++)
         {
             var record = logFile.Records[i];
-            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.fff zzz} {1}", record.Data, record.Details));
+            Console.WriteLine(record.FullDetails);
             Console.WriteLine(new string('-', 80));
 
             if (i < logFile.Records.Count - 1)
