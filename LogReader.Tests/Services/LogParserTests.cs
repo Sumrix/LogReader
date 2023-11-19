@@ -121,7 +121,6 @@ public class LogParserTests
         Assert.That(results[0], Is.EqualTo(expectedRecord));
     }
 
-
     private static Stream GenerateStreamFromString(string s)
     {
         var stream = new MemoryStream();
