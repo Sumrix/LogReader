@@ -3,47 +3,61 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:LogReader.Desktop.ViewModels"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:helpers="clr-namespace:LogReader.Desktop.Helpers"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LogReader.Desktop.Views.FileView"
              x:DataType="viewModels:FileViewModel"
->
+             ToolTip.ShowDelay="500"
+             Background="{StaticResource LightBackground}">
+    <!-- Data context for design-time view in XAML previewer -->
     <Design.DataContext>
         <viewModels:FileViewModel />
     </Design.DataContext>
+  
+    <!-- Local resources -->
+    <UserControl.Resources>
+        <!-- Parameter for controlling the maximum length of text header -->
+        <system:Int32 x:Key="MaxHeaderLength">150</system:Int32>
+    </UserControl.Resources>
 
+    <!-- Main layout grid -->
     <Grid ColumnDefinitions="*,4,*">
-
-        <!-- Logs list -->
-        <ListBox Grid.Column="0"
+        <!-- List of logs -->
+        <DataGrid Grid.Column="0"
                  ItemsSource="{Binding File.Records, Mode=OneWay}"
                  SelectedItem="{Binding SelectedRecord, Mode=OneWayToSource}"
                  FontSize="10"
                  FontFamily="Consolas"
-                 Padding="10">
-
-            <ListBox.Styles>
-                <Style Selector="ListBoxItem">
+                 CanUserResizeColumns="True"
+                 Background="{StaticResource Foreground}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat=G}"/>
+                <DataGridTextColumn Header="Message" Binding="{Binding Message, Mode=OneTime,
+                                    Converter={x:Static helpers:StringTruncationConverter.Right},
+                                    ConverterParameter={StaticResource MaxHeaderLength}}"/>
+            </DataGrid.Columns>
+            <!-- Styling for data grid rows -->
+            <DataGrid.Styles>
+                <Style Selector="DataGridRow">
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Margin" Value="0"/>
+                    <Setter Property="MaxHeight" Value="17"/>
                 </Style>
-            </ListBox.Styles>
+            </DataGrid.Styles>
+        </DataGrid>
 
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Header, Mode=OneTime}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <!-- Grid splitter for resizing the log list and log detail panels -->
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
 
-
-        <GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
-
-        <!-- Log details -->
+        <!-- Detailed view of the selected log -->
         <TextBox Grid.Column="2"
-                 Text="{Binding SelectedRecord.Details, Mode=OneWay}"
+                 Text="{Binding SelectedRecord.Message, Mode=OneWay}"
                  AcceptsReturn="True"
                  IsReadOnly="True"
                  TextWrapping="Wrap"
-                 FontFamily="Consolas"/>
+                 FontFamily="Consolas"
+                 BorderThickness="0"
+                 Background="{StaticResource Foreground}"/>
     </Grid>
 </UserControl>

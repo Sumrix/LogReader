@@ -4,37 +4,54 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:LogReader.Desktop.Views"
         xmlns:viewModels="using:LogReader.Desktop.ViewModels"
+        xmlns:helpers="clr-namespace:LogReader.Desktop.Helpers"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="LogReader.Desktop.Views.ShellWindow"
         Icon="/Assets/LogReader.ico"
         x:DataType="viewModels:ShellViewModel"
         Title="Log Reader"
->
+        ToolTip.ShowDelay="500"
+        FontFamily="Segoe UI, Segoe Fluent Icons">
     <Design.DataContext>
         <viewModels:ShellViewModel />
     </Design.DataContext>
+    <Window.Resources>
+        <system:Int32 x:Key="MaxHeaderLength">18</system:Int32>
+    </Window.Resources>
     
     <DockPanel >
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open File..." Command="{Binding OpenFile}"/>
-                <MenuItem Header="_Open Directory..." Command="{Binding OpenDirectory}"/>
-                <MenuItem Header="_Close Directory"
+        <Menu DockPanel.Dock="Top" Background="LightGray">
+            <MenuItem Header="_File" ToolTip.Tip="File operations">
+                <MenuItem Header="&#xe8e5; _Open File..."
+                          Command="{Binding OpenFile}"
+                          ToolTip.Tip="Open a single file"/>
+                <MenuItem Header="&#xe838; _Open Folder..."
+                          Command="{Binding OpenDirectory}"
+                          ToolTip.Tip="Open a directory of files"/>
+                <MenuItem Header="&#xe8b7; _Close Folder"
                           Command="{Binding Close}"
-                          CommandParameter="{Binding #Directories.SelectedIndex}" />
+                          CommandParameter="{Binding #Directories.SelectedIndex}"
+                          ToolTip.Tip="Close the selected directory"/>
                 <Separator/>
-                <MenuItem Header="_Exit" Command="{Binding Exit}"/>
+                <MenuItem Header="&#xe711; _Exit"
+                          Command="{Binding Exit}"
+                          ToolTip.Tip="Exit application"/>
             </MenuItem>
         </Menu>
         <TabControl Name="Directories"
                     DockPanel.Dock="Top"
-                    ItemsSource="{Binding Directories}"
-                    SelectedItem="{Binding SelectedDirectory}">
+                    ItemsSource="{Binding Directories, Mode=OneTime}"
+                    SelectedItem="{Binding SelectedDirectory, Mode=OneWayToSource}"
+                    Margin="0,5,0,0"
+                    Padding="0">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Name="TabName"
-                               Text="{Binding Path}"
-                               TextAlignment="Left"/>
+                               Text="{Binding Path, Mode=OneTime, Converter={x:Static helpers:StringTruncationConverter.Left},
+                                     ConverterParameter={StaticResource MaxHeaderLength}}"
+                               TextAlignment="Left"
+                               ToolTip.Tip="{Binding Path, Mode=OneTime}"/>
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>

@@ -2,6 +2,9 @@
 
 public static class StringExtensions
 {
+    //private const string Ellipsis = "...";
+    private const string Ellipsis = "…";
+
     /// <summary>
     /// Truncates a string to the specified length.
     /// </summary>
@@ -15,11 +18,11 @@ public static class StringExtensions
         {
             return value ?? string.Empty;
         }
-        
-        var ellipsisLength = ellipsis ? 3 : 0;
+
+        var ellipsisLength = ellipsis ? Ellipsis.Length : 0;
         if (length <= ellipsisLength)
         {
-            return "..."[..length];
+            return Ellipsis[..length];
         }
 
         value = value.Trim();
@@ -27,7 +30,7 @@ public static class StringExtensions
         if (value.Length > length)
         {
             return ellipsis
-                ? string.Concat(value.AsSpan(0, length - ellipsisLength), "...")
+                ? string.Concat(value.AsSpan(0, length - ellipsisLength), Ellipsis)
                 : value[..length];
         }
 
@@ -48,10 +51,10 @@ public static class StringExtensions
             return value ?? string.Empty;
         }
 
-        var ellipsisLength = ellipsis ? 3 : 0;
+        var ellipsisLength = ellipsis ? Ellipsis.Length : 0;
         if (length <= ellipsisLength)
         {
-            return "..."[..length];
+            return Ellipsis[..length];
         }
 
         value = value.Trim();
@@ -59,7 +62,7 @@ public static class StringExtensions
         if (value.Length > length)
         {
             return ellipsis
-                ? string.Concat("...", value.AsSpan(value.Length - length + ellipsisLength))
+                ? string.Concat(Ellipsis, value.AsSpan(value.Length - length + ellipsisLength))
                 : value[..length];
         }
 

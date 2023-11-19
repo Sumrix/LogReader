@@ -6,5 +6,11 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
     </Application.Styles>
+     <Application.Resources>
+         <Color x:Key="LightBackground">#f0f0f0</Color>
+         <Color x:Key="MainBackground">LightGray</Color>
+         <Color x:Key="Foreground">White</Color>
+     </Application.Resources>
 </Application>
