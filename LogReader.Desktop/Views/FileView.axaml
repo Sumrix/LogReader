@@ -30,7 +30,8 @@
                  FontSize="10"
                  FontFamily="Consolas"
                  CanUserResizeColumns="True"
-                 Background="{StaticResource Foreground}">
+                 Background="{StaticResource Foreground}"
+                 IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat=G}"/>
                 <DataGridTextColumn Header="Message" Binding="{Binding Message, Mode=OneTime,

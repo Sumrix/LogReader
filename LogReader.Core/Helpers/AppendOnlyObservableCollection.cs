@@ -92,6 +92,17 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
                 Count = _items.Count;
 
                 _context.Post(_ => { OnCollectionReset(); }, null);
+                
+                var isUiThread = _context == SynchronizationContext.Current;
+                if (isUiThread)
+                {
+                    Notify();
+                }
+                else
+                {
+                    _context.Post(_ => Notify(), null);
+                }
+                void Notify() => OnCollectionReset();
             }
             else
             {
@@ -105,13 +116,23 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
 
                 _items.AddRange(list);
                 Count = _items.Count;
+                
+                var isUiThread = _context == SynchronizationContext.Current;
+                if (isUiThread)
+                {
+                    Notify();
+                }
+                else
+                {
+                    _context.Post(_ => Notify(), null);
+                }
 
-                _context.Post(_ =>
+                void Notify()
                 {
                     OnCountPropertyChanged();
                     OnIndexerPropertyChanged();
                     OnCollectionChanged(new(NotifyCollectionChangedAction.Add, (IList)list, startIndex));
-                }, null);
+                }
             }
         }
     }
