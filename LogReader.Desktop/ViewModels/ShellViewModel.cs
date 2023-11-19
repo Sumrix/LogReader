@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LogReader.Desktop.Contracts.Services;
-using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
 
 namespace LogReader.Desktop.ViewModels;
 
+/// <summary>
+/// ViewModel for the main window or shell of the application.
+/// </summary>
 public partial class ShellViewModel : ObservableObject
 {
     private readonly IClassicDesktopStyleApplicationLifetime _desktopService;
+    private readonly IDialogService _dialogService;
     private readonly IDirectoryViewModelFactory _directoryViewModelFactory;
 
     [ObservableProperty]
@@ -24,92 +25,80 @@ public partial class ShellViewModel : ObservableObject
 
     public ShellViewModel(
         IClassicDesktopStyleApplicationLifetime desktopService,
-        IDirectoryViewModelFactory directoryViewModelFactory)
+        IDirectoryViewModelFactory directoryViewModelFactory,
+        IDialogService dialogService)
     {
         _desktopService = desktopService;
         _directoryViewModelFactory = directoryViewModelFactory;
+        _dialogService = dialogService;
         Directories = new();
     }
 
-    // For xaml previewer
+    /// <summary>
+    /// Constructor for XAML previewer with sample data.
+    /// </summary>
     public ShellViewModel()
     {
+        _dialogService = null!;
         _desktopService = null!;
         _directoryViewModelFactory = null!;
         Directories = new()
         {
-            new(new("my/first/long/path", Array.Empty<string>()), null!),
-            new(new("my/second/long/path", Array.Empty<string>()), null!),
-            new(new("my/third/long/path", Array.Empty<string>()), null!)
+            new(new("LogReader.Desktop"), null!),
+            new(new("LogReader.Core"), null!),
+            new(new("LogReader.Tests"), null!)
         };
     }
 
     [RelayCommand]
     public async Task OpenDirectory()
     {
-        var folders = await _desktopService.MainWindow!.StorageProvider.OpenFolderPickerAsync(new()
+        var directoryPath = await _dialogService.OpenFolderDialogAsync();
+        if (string.IsNullOrEmpty(directoryPath))
         {
-            Title = "Open Folder",
-            AllowMultiple = false
-        });
-        var folderName = folders[0].Path.AbsolutePath;
+            return;
+        }
 
-        var directoryViewModel = _directoryViewModelFactory.TryCreateViewModel(folderName);
-        if (directoryViewModel is null)
-        {
-            var msg = MessageBoxManager.GetMessageBoxStandard(
-                "Open Folder",
-                $"{folderName}\r\nFolder not found.\r\nCheck the folder name and try again.",
-                ButtonEnum.Ok,
-                Icon.Warning);
-            await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
-        }
-        else
-        {
-            Directories.Add(directoryViewModel);
-            SelectedDirectory = directoryViewModel;
-        }
+        var directoryViewModel = _directoryViewModelFactory.CreateViewModel(directoryPath);
+        Directories.Add(directoryViewModel);
+        SelectedDirectory = directoryViewModel;
     }
 
     [RelayCommand]
     public async Task OpenFile()
     {
-        var files = await _desktopService.MainWindow!.StorageProvider.OpenFilePickerAsync(new()
+        var filePath = await _dialogService.OpenFileDialogAsync("*.*");
+        if (string.IsNullOrEmpty(filePath))
         {
-            Title = "Open Text File",
-            AllowMultiple = false
-        });
-        var filePath = files[0].Path.AbsolutePath;
+            return;
+        }
+
         var directoryPath = Path.GetDirectoryName(filePath)!;
         var fileName = Path.GetFileName(filePath);
+        var directoryViewModel = _directoryViewModelFactory.CreateViewModel(directoryPath, fileName);
         
-        var directoryViewModel = _directoryViewModelFactory.TryCreateViewModel(directoryPath);
-        if (directoryViewModel is null)
-        {
-            var msg = MessageBoxManager.GetMessageBoxStandard(
-                "Open Text File",
-                $"{directoryPath}\r\nFolder not found.\r\nCheck the folder name and try again.",
-                ButtonEnum.Ok,
-                Icon.Warning);
-            await msg.ShowWindowDialogAsync(_desktopService.MainWindow);
-        }
-        else
-        {
-            Directories.Add(directoryViewModel);
-            SelectedDirectory = directoryViewModel;
-            directoryViewModel.SelectedFileName = fileName;
-        }
+        Directories.Add(directoryViewModel);
+        SelectedDirectory = directoryViewModel;
     }
 
     [RelayCommand]
     public void Close(int directoryIndex)
     {
-        Directories.RemoveAt(directoryIndex);
+        if (directoryIndex >= 0 && directoryIndex < Directories.Count)
+        {
+            Directories.RemoveAt(directoryIndex);
+        }
     }
 
     [RelayCommand]
     public void Exit()
     {
         _desktopService.MainWindow?.Close();
+    }
+
+    partial void OnSelectedDirectoryChanged(DirectoryViewModel? oldValue, DirectoryViewModel? newValue)
+    {
+        oldValue?.OnDeactivated();
+        newValue?.OnActivated();
     }
 }

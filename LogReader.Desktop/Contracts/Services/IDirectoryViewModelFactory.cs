@@ -4,5 +4,7 @@ namespace LogReader.Desktop.Contracts.Services;
 
 public interface IDirectoryViewModelFactory
 {
-    DirectoryViewModel? TryCreateViewModel(string directoryPath);
+    DirectoryViewModel CreateViewModel(string directoryPath);
+
+    DirectoryViewModel CreateViewModel(string directoryPath, string fileName);
 }

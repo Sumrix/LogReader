@@ -7,24 +7,50 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LogReader.Desktop.Views.DirectoryView"
              x:DataType="viewModels:DirectoryViewModel"
->
+             ToolTip.ShowDelay="500"
+             FontFamily="Segoe UI, Segoe Fluent Icons"
+             Background="{StaticResource LightBackground}">
     <Design.DataContext>
         <viewModels:DirectoryViewModel />
     </Design.DataContext>
     <Grid RowDefinitions="Auto,*">
-        <Grid ColumnDefinitions="Auto,Auto">
-            <ComboBox Grid.Column="0"
-                      ItemsSource="{Binding FileNames}"
-                      SelectedItem="{Binding SelectedFileName}"
-                      Width="250"/>
-            <Button Grid.Column="1" Content="Refresh File" Command="{Binding Refresh}"/>
-        </Grid>
-        <ContentControl Grid.Row="1" Content="{Binding SelectedFile, Mode=TwoWay}">
+
+        <!-- Menu area with file selection and refresh button -->
+        <DockPanel Margin="5">
+
+            <!-- File selection ComboBox -->
+            <ComboBox ItemsSource="{Binding Files, Mode=OneWay}"
+                      SelectedItem="{Binding SelectedFileInfo, Mode=TwoWay}"
+                      VerticalContentAlignment="Center"
+                      MaxHeight="30"
+                      Margin="0,0,5,0"
+                      Background="{StaticResource Foreground}"
+                      BorderThickness="0"
+                      Width="250">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name, Mode=OneWay}" ToolTip.Tip="{Binding FullName, Mode=OneTime}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <!-- Refresh button with icon -->
+            <Button Content="&#xe72c;"
+                    Command="{Binding ReloadFile}"
+                    ToolTip.Tip="Reload File"
+                    VerticalContentAlignment="Center"
+                    Background="{StaticResource LightBackground}"/>
+
+        </DockPanel>
+
+        <!-- Content area for selected file details -->
+        <ContentControl Grid.Row="1" Content="{Binding SelectedFile, Mode=OneWay}" Margin="0">
             <ContentControl.ContentTemplate>
                 <DataTemplate>
                     <views:FileView/>
                 </DataTemplate>
             </ContentControl.ContentTemplate>
         </ContentControl>
+
     </Grid>
 </UserControl>

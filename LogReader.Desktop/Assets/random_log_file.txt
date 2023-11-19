@@ -1,0 +1,23 @@
+2023-11-03 09:51:36.827 +01:00 [INFO] Application has started.
+    Host: Production
+    Content Root: /var/app/
+2023-11-03 09:52:10.214 +01:00 [DEBUG] Loading configuration from /configs/appsettings.json.
+    File loaded successfully.
+2023-11-03 09:53:29.428 +01:00 [ERR] An error occurred while processing the operation
+System.InvalidOperationException: Expected non-null value, got null.
+   at MyApp.ProcessingModule.ValidateInput(String input)
+   at MyApp.Workflow.Execute()
+   at MyApp.Program.Main(String[] args) in /source/MyApp/Program.cs:line 14
+2023-11-03 09:54:15.654 +01:00 [WARN] The transaction '0x76ff' has been terminated due to timeout.
+    Transaction started at 09:53:29.
+    Timeout threshold set to 00:00:30.
+2023-11-03 09:55:01.001 +01:00 [INFO] User 'john.doe' has logged in.
+    Session ID: xyz123
+    IP Address: 192.168.1.25
+2023-11-03 09:55:36.450 +01:00 [ERR] Failed to send email notification to 'jane.doe@example.com'
+System.Net.Mail.SmtpException: The SMTP server requires a secure connection or the client was not authenticated.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at MyApp.NotificationService.SendEmail(EmailMessage message) in /source/MyApp/NotificationService.cs:line 42
+2023-11-03 09:55:01.001 +01:00 [INFO] User 'john.doe' has logged in.
+    Session ID: xyz123
+    IP Address: 192.168.1.25

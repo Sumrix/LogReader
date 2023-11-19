@@ -1,68 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LogReader.Core.Contracts.Services;
-using LogReader.Core.Helpers;
-using LogReader.Core.Models;
+using LogReader.Core.Services;
 
 namespace LogReader.Desktop.ViewModels;
 
+/// <summary>
+/// ViewModel for representing and interacting with a directory and its files.
+/// </summary>
 public partial class DirectoryViewModel : ObservableObject
 {
-    private const int HeaderLength = 15;
+    private readonly IFileReader _fileReader;
 
-    private readonly IFileService _fileService;
-    private readonly DirectoryModel _directoryModel;
-    
-    public string Path => _directoryModel.Path.TruncateLeft(HeaderLength, true);
+    /// <summary>
+    /// The full path of the directory.
+    /// </summary>
+    public string Path { get; }
 
-    public IReadOnlyList<string> FileNames => _directoryModel.FileNames;
+    /// <summary>
+    /// List of files in the directory.
+    /// </summary>
+    public IReadOnlyList<FileInfo> Files { get; }
 
     [ObservableProperty]
-    private FileViewModel _selectedFile;
+    private FileViewModel? _selectedFile;
 
     [ObservableProperty]
-    private string? _selectedFileName;
+    private FileInfo? _selectedFileInfo;
 
-    public DirectoryViewModel(DirectoryModel directoryModel, IFileService fileService)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DirectoryViewModel"/> class for the specified directory.
+    /// </summary>
+    /// <param name="directoryInfo">Directory information to represent.</param>
+    /// <param name="fileReader">File reader service for loading file data.</param>
+    public DirectoryViewModel(DirectoryInfo directoryInfo, IFileReader fileReader)
     {
-        _directoryModel = directoryModel;
-        _fileService = fileService;
-        _selectedFile = FileViewModel.Empty;
-
-        PropertyChanged += async (_, e) =>
-        {
-            if (e.PropertyName == nameof(SelectedFileName))
-            {
-                await Refresh();
-            }
-        };
+        _fileReader = fileReader;
+        
+        Path = directoryInfo.FullName;
+        Files = directoryInfo.GetFiles();
     }
     
-    // For xaml previewer
+    /// <summary>
+    /// Constructor for XAML previewer with sample data.
+    /// </summary>
     public DirectoryViewModel()
     {
-        _fileService = null!;
-        _directoryModel = new(
-            @"..\..\..\..\LogReader.Tests.MSTest\Assets\",
-            new []{"logs_input.txt", "expected_output_records.txt"});
-        _selectedFile = FileViewModel.Empty;
+        _fileReader = new FileReader(new LogParser(), new FileAppendMonitorFactory());
+        var directoryInfo = new DirectoryInfo(@".\LogReader.Desktop\Assets\");
+
+        Path = directoryInfo.FullName;
+        Files = directoryInfo.GetFiles();
+
+        SelectedFileInfo = Files.SingleOrDefault(f => f.Name == "random_log_file.txt");
     }
 
     [RelayCommand]
-    public async Task Refresh()
+    public void ReloadFile()
     {
-        if (SelectedFileName is null)
+        if (SelectedFileInfo is null)
         {
-            SelectedFile = FileViewModel.Empty;
+            SelectedFile = null;
             return;
         }
 
-        var filePath = System.IO.Path.Combine(_directoryModel.Path, SelectedFileName);
-        var logFile = await _fileService.TryReadAsync(filePath)
-                      ?? throw new InvalidOperationException("File doesn't exist");
+        var logFile = _fileReader.Load(SelectedFileInfo);
         SelectedFile = new(logFile);
+    }
+
+    /// <summary>
+    /// Called when this ViewModel becomes the active (focused) ViewModel.
+    /// </summary>
+    public void OnActivated()
+    {
+        SelectedFile?.OnActivated();
+    }
+
+    /// <summary>
+    /// Called when this ViewModel is no longer the active (focused) ViewModel.
+    /// </summary>
+    public void OnDeactivated()
+    {
+        SelectedFile?.OnDeactivated();
+    }
+
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnSelectedFileInfoChanged(FileInfo? value)
+    {
+        ReloadFile();
+    }
+
+    partial void OnSelectedFileChanged(FileViewModel? oldValue, FileViewModel? newValue)
+    {
+        oldValue?.OnDeactivated();
+        newValue?.OnActivated();
     }
 }

@@ -65,12 +65,14 @@ public class App : Application
         var desktop = (IClassicDesktopStyleApplicationLifetime)Current!.ApplicationLifetime!;
 
         // Core Services
-        services.AddSingleton<IFileService, FileService>();
-        services.AddSingleton<IDirectoryService, DirectoryService>();
+        services.AddTransient<IFileReader, FileReader>();
+        services.AddTransient<IFileUpdateNotifierFactory, FileAppendMonitorFactory>();
+        services.AddTransient<ILogParser, LogParser>();
 
         // Services
         services.AddSingleton(desktop);
         services.AddSingleton<IDirectoryViewModelFactory, DirectoryViewModelFactory>();
+        services.AddSingleton<IDialogService, DialogService>();
 
         // Views and ViewModels
         services.AddTransient<ShellWindow>();

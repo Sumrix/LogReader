@@ -1,4 +1,6 @@
-﻿using LogReader.Core.Contracts.Services;
+﻿using System.IO;
+using System.Linq;
+using LogReader.Core.Contracts.Services;
 using LogReader.Desktop.Contracts.Services;
 using LogReader.Desktop.ViewModels;
 
@@ -6,17 +8,26 @@ namespace LogReader.Desktop.Services;
 
 internal class DirectoryViewModelFactory : IDirectoryViewModelFactory
 {
-    private readonly IFileService _fileService;
-    private readonly IDirectoryService _directoryService;
+    private readonly IFileReader _fileReader;
 
-    public DirectoryViewModelFactory(IFileService fileService, IDirectoryService directoryService)
+    public DirectoryViewModelFactory(IFileReader fileReader)
     {
-        _fileService = fileService;
-        _directoryService = directoryService;
+        _fileReader = fileReader;
     }
 
-    public DirectoryViewModel? TryCreateViewModel(string directoryPath) =>
-        _directoryService.TryLoad(directoryPath) is { } directoryModel
-            ? new(directoryModel, _fileService)
-            : null;
+    public DirectoryViewModel CreateViewModel(string directoryPath)
+    {
+        var directoryInfo = new DirectoryInfo(directoryPath);
+        return new(directoryInfo, _fileReader);
+    }
+
+    public DirectoryViewModel CreateViewModel(string directoryPath, string fileName)
+    {
+        var directoryInfo = new DirectoryInfo(directoryPath);
+        var directoryViewModel = new DirectoryViewModel(directoryInfo, _fileReader);
+
+        directoryViewModel.SelectedFileInfo = directoryViewModel.Files.First(f => f.Name == fileName);
+
+        return directoryViewModel;
+    }
 }
