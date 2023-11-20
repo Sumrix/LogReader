@@ -76,49 +76,6 @@ public class AppendOnlyObservableCollectionTests
     }
 
     [Test]
-    public void AddRange_WithReset_RaisesChangedEvents()
-    {
-        // Arrange
-        var collection = new AppendOnlyObservableCollection<int>();
-        var itemsToAdd = new[] { 1, 2, 3, 4, 5 };
-        var resetRaised = new TaskCompletionSource<bool>();
-        var countRaised = new TaskCompletionSource<bool>();
-        var indexerRaised = new TaskCompletionSource<bool>();
-
-        collection.CollectionChanged += (_, e) =>
-        {
-            if (e.Action == NotifyCollectionChangedAction.Reset)
-            {
-                resetRaised.SetResult(true);
-            }
-        };
-
-        collection.PropertyChanged += (_, e) =>
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(collection.Count):
-                    countRaised.SetResult(true);
-                    break;
-                case IndexerName:
-                    indexerRaised.SetResult(true);
-                    break;
-            }
-        };
-
-        // Act
-        collection.AddRange(itemsToAdd, useReset: true);
-
-        // Assert
-        Assert.Multiple(async () =>
-        {
-            Assert.That(await resetRaised.Task, Is.True);
-            Assert.That(await countRaised.Task, Is.True);
-            Assert.That(await indexerRaised.Task, Is.True);
-        });
-    }
-
-    [Test]
     public void AddRange_InParallelContext_AddsItemsCorrectly()
     {
         // Arrange
@@ -314,39 +271,6 @@ public class AppendOnlyObservableCollectionTests
 
         // Assert
         Assert.That(eventsRaised, Is.False, "Events should not be raised for an empty collection.");
-    }
-
-    [Test]
-    public void AddRange_MixedResetAndAdd_RaisesCorrectEvents()
-    {
-        // Arrange
-        var collection = new AppendOnlyObservableCollection<int>();
-        var resetRaised = new TaskCompletionSource<bool>();
-        var addRaised = new TaskCompletionSource<bool>();
-
-        collection.CollectionChanged += (_, e) =>
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Reset:
-                    resetRaised.SetResult(true);
-                    break;
-                case NotifyCollectionChangedAction.Add:
-                    addRaised.SetResult(true);
-                    break;
-            }
-        };
-
-        // Act
-        collection.AddRange(new[] { 1, 2, 3 }, useReset: true);
-        collection.AddRange(new[] { 4, 5, 6 }, useReset: false);
-
-        // Assert
-        Assert.Multiple(async () =>
-        {
-            Assert.That(await resetRaised.Task, Is.True, "Reset event should have been raised.");
-            Assert.That(await addRaised.Task, Is.True, "Add event should have been raised.");
-        });
     }
 
     [Test]

@@ -70,7 +70,7 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
         ? throw new ArgumentOutOfRangeException(nameof(index))
         : _items[index];
 
-    public void AddRange(IEnumerable<T> collection, bool useReset = false)
+    public void AddRange(IEnumerable<T> collection)
     {
         if (collection == null)
         {
@@ -79,39 +79,32 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
 
         lock (_syncRoot)
         {
-            if (useReset)
+            var startIndex = Count;
+            var list = collection as IList<T> ?? new List<T>(collection);
+
+            if (list.Count == 0)
             {
-                var oldCount = _items.Count;
-                _items.AddRange(collection);
+                return;
+            }
 
-                if (oldCount == _items.Count)
-                {
-                    return;
-                }
-
-                Count = _items.Count;
-
-                _context.Post(_ => { OnCollectionReset(); }, null);
+            _items.AddRange(list);
+            Count = _items.Count;
+                
+            var isUiThread = _context == SynchronizationContext.Current;
+            if (isUiThread)
+            {
+                Notify();
             }
             else
             {
-                var startIndex = Count;
-                var list = collection as IList<T> ?? new List<T>(collection);
+                _context.Post(_ => Notify(), null);
+            }
 
-                if (list.Count == 0)
-                {
-                    return;
-                }
-
-                _items.AddRange(list);
-                Count = _items.Count;
-
-                _context.Post(_ =>
-                {
-                    OnCountPropertyChanged();
-                    OnIndexerPropertyChanged();
-                    OnCollectionChanged(new(NotifyCollectionChangedAction.Add, (IList)list, startIndex));
-                }, null);
+            void Notify()
+            {
+                OnCountPropertyChanged();
+                OnIndexerPropertyChanged();
+                OnCollectionChanged(new(NotifyCollectionChangedAction.Add, (IList)list, startIndex));
             }
         }
     }
@@ -119,13 +112,6 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
     private void OnIndexerPropertyChanged() => OnPropertyChanged(new("Item[]"));
 
     private void OnCountPropertyChanged() => OnPropertyChanged(new(nameof(Count)));
-
-    private void OnCollectionReset()
-    {
-        OnCountPropertyChanged();
-        OnIndexerPropertyChanged();
-        OnCollectionChanged(new(NotifyCollectionChangedAction.Reset));
-    }
 
     private void OnPropertyChanged(PropertyChangedEventArgs e) => PropertyChanged?.Invoke(this, e);
 

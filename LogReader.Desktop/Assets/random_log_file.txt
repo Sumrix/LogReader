@@ -18,6 +18,3 @@ System.InvalidOperationException: Expected non-null value, got null.
 System.Net.Mail.SmtpException: The SMTP server requires a secure connection or the client was not authenticated.
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at MyApp.NotificationService.SendEmail(EmailMessage message) in /source/MyApp/NotificationService.cs:line 42
-2023-11-03 09:55:01.001 +01:00 [INFO] User 'john.doe' has logged in.
-    Session ID: xyz123
-    IP Address: 192.168.1.25
