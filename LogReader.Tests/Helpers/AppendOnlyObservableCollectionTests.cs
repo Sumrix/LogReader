@@ -274,6 +274,7 @@ public class AppendOnlyObservableCollectionTests
     }
 
     [Test]
+    [Category("Performance")]
     public void AddRange_LargeCollection_Performance()
     {
         // Arrange
@@ -290,6 +291,7 @@ public class AppendOnlyObservableCollectionTests
     }
 
     [Test]
+    [Category("Performance")]
     public void AddRange_HighFrequency_AddsItemsWithoutDelay()
     {
         // Arrange

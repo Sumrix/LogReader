@@ -31,10 +31,9 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ github.ref }}
-        name: ${{ github.ref_name }}
+        name: LogReader-${{ github.ref_name }}
         draft: false
         prerelease: false
         files: LogReader*.zip
-       # name: ${{ github.ref_name }}
        # body: 'See the [commit history](https://github.com/Sumrix/LogReader/commits/master) for changes.'
         generate_release_notes: true
