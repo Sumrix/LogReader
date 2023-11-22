@@ -10,6 +10,7 @@
              x:DataType="viewModels:FileViewModel"
              ToolTip.ShowDelay="500"
              Background="{StaticResource LightBackground}">
+
     <!-- Data context for design-time view in XAML previewer -->
     <Design.DataContext>
         <viewModels:FileViewModel />
