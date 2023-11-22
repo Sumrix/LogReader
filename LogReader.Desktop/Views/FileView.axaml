@@ -10,6 +10,7 @@
              x:DataType="viewModels:FileViewModel"
              ToolTip.ShowDelay="500"
              Background="{StaticResource LightBackground}">
+
     <!-- Data context for design-time view in XAML previewer -->
     <Design.DataContext>
         <viewModels:FileViewModel />
@@ -23,21 +24,24 @@
 
     <!-- Main layout grid -->
     <Grid ColumnDefinitions="*,4,*">
+
         <!-- List of logs -->
-        <DataGrid Grid.Column="0"
+        <DataGrid Name="Logs"
+                 Grid.Column="0"
                  ItemsSource="{Binding File.Records, Mode=OneWay}"
-                 SelectedItem="{Binding SelectedRecord, Mode=OneWayToSource}"
                  FontSize="10"
                  FontFamily="Consolas"
                  CanUserResizeColumns="True"
                  Background="{StaticResource Foreground}"
-                 IsReadOnly="True">
+                 IsReadOnly="True"
+                 SelectionMode="Extended">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat=G}"/>
                 <DataGridTextColumn Header="Message" Binding="{Binding Message, Mode=OneTime,
                                     Converter={x:Static helpers:StringTruncationConverter.Right},
                                     ConverterParameter={StaticResource MaxHeaderLength}}"/>
             </DataGrid.Columns>
+
             <!-- Styling for data grid rows -->
             <DataGrid.Styles>
                 <Style Selector="DataGridRow">
@@ -46,19 +50,29 @@
                     <Setter Property="MaxHeight" Value="17"/>
                 </Style>
             </DataGrid.Styles>
+
+            <!-- Redirecting the DataGrid's selection change event to the ViewModel -->
+            <Interaction.Behaviors>
+                <EventTriggerBehavior EventName="SelectionChanged">
+                    <InvokeCommandAction Command="{Binding SelectionsChangedCommand}"
+                                         CommandParameter="{Binding #Logs.SelectedItems}"/>
+                </EventTriggerBehavior>
+            </Interaction.Behaviors>
         </DataGrid>
 
         <!-- Grid splitter for resizing the log list and log detail panels -->
         <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
 
         <!-- Detailed view of the selected log -->
-        <TextBox Grid.Column="2"
-                 Text="{Binding SelectedRecord.Message, Mode=OneWay}"
+        <TextBox Name="Detail"
+                 Text="{Binding Details}"
+                 Grid.Column="2"
                  AcceptsReturn="True"
                  IsReadOnly="True"
                  TextWrapping="Wrap"
                  FontFamily="Consolas"
                  BorderThickness="0"
+                 CornerRadius="0"
                  Background="{StaticResource Foreground}"/>
     </Grid>
 </UserControl>
