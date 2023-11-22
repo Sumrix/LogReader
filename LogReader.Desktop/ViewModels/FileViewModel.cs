@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using LogReader.Core.Models;
 
 namespace LogReader.Desktop.ViewModels;
@@ -16,7 +14,7 @@ public partial class FileViewModel : ObservableObject
     private FileData _file;
 
     [ObservableProperty]
-    private string? _details;
+    private Record _selectedRecord;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FileViewModel"/> class with the specified file data.
@@ -25,6 +23,7 @@ public partial class FileViewModel : ObservableObject
     public FileViewModel(FileData file)
     {
         _file = file ?? throw new ArgumentNullException(nameof(file));
+        _selectedRecord = file.Records.FirstOrDefault() ?? new(DateTimeOffset.Now, "");
     }
     
     /// <summary>
@@ -38,6 +37,7 @@ public partial class FileViewModel : ObservableObject
 
         _file = new(null!, null!, null!); // Using 'null!' to satisfy the constructor requirement.
         _file.Records.AddRange(records);
+        _selectedRecord = _file.Records[0];
     }
 
     /// <summary>
@@ -57,15 +57,5 @@ public partial class FileViewModel : ObservableObject
     public void OnDeactivated()
     {
         File.StopAutoUpdating();
-    }
-
-    [RelayCommand]
-    private void SelectionsChanged(IList items)
-    {
-        var messages = items
-            .Cast<Record>()
-            .Select(r => r.Message);
-
-        Details = string.Join(Environment.NewLine + Environment.NewLine, messages);
     }
 }
