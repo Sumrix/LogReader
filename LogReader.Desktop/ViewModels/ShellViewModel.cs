@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LogReader.Core.Services;
 using LogReader.Desktop.Contracts.Services;
 
 namespace LogReader.Desktop.ViewModels;
@@ -42,11 +43,12 @@ public partial class ShellViewModel : ObservableObject
         _dialogService = null!;
         _desktopService = null!;
         _directoryViewModelFactory = null!;
+        var fileReader = new FileReader(new LogParser(), new FileAppendMonitorFactory());
         Directories = new()
         {
-            new(new("LogReader.Desktop"), null!),
-            new(new("LogReader.Core"), null!),
-            new(new("LogReader.Tests"), null!)
+            new(new(@"LogReader.Desktop\Assets\"), fileReader),
+            new(new("LogReader.Core"), fileReader),
+            new(new("LogReader.Tests"), fileReader)
         };
     }
 

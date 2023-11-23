@@ -36,8 +36,8 @@
                  IsReadOnly="True"
                  SelectionMode="Extended">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat=G}"/>
-                <DataGridTextColumn Header="Message" Binding="{Binding Message, Mode=OneTime,
+                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, Mode=OneWay, StringFormat=G}"/>
+                <DataGridTextColumn Header="Message" Binding="{Binding Message, Mode=OneWay,
                                     Converter={x:Static helpers:StringTruncationConverter.Right},
                                     ConverterParameter={StaticResource MaxHeaderLength}}"/>
             </DataGrid.Columns>
@@ -65,7 +65,7 @@
 
         <!-- Detailed view of the selected log -->
         <TextBox Name="Detail"
-                 Text="{Binding Details}"
+                 Text="{Binding Details, Mode=OneWay}"
                  Grid.Column="2"
                  AcceptsReturn="True"
                  IsReadOnly="True"

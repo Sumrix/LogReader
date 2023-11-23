@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LogReader.Core.Models;
+using LogReader.Core.Services;
 
 namespace LogReader.Desktop.ViewModels;
 
@@ -32,12 +34,9 @@ public partial class FileViewModel : ObservableObject
     /// </summary>
     public FileViewModel()
     {
-        var records = Enumerable.Range(0, 10)
-            .Select(i => new Record(DateTimeOffset.Now, $"Details #{i}"))
-            .ToList();
-
-        _file = new(null!, null!, null!); // Using 'null!' to satisfy the constructor requirement.
-        _file.Records.AddRange(records);
+        var fileReader = new FileReader(new LogParser(), new FileAppendMonitorFactory());
+        var fileInfo = new FileInfo(@".\LogReader.Desktop\Assets\random_log_file.txt");
+        File = fileReader.Load(fileInfo);
     }
 
     /// <summary>
@@ -60,9 +59,9 @@ public partial class FileViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SelectionsChanged(IList items)
+    private void SelectionsChanged(IList selectedRecords)
     {
-        var messages = items
+        var messages = selectedRecords
             .Cast<Record>()
             .Select(r => r.Message);
 
