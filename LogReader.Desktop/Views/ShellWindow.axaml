@@ -8,20 +8,50 @@
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="LogReader.Desktop.Views.ShellWindow"
-        Icon="/Assets/LogReader.ico"
         x:DataType="viewModels:ShellViewModel"
+        Icon="/Assets/LogReader.ico"
         Title="Log Reader"
-        ToolTip.ShowDelay="500"
-        FontFamily="Segoe UI, Segoe Fluent Icons">
+        FontFamily="Segoe UI, Segoe Fluent Icons"
+        Background="{StaticResource WindowBackground}"
+        Width="{Binding UserSettings.WindowWidth, Mode=TwoWay}"
+        Height="{Binding UserSettings.WindowHeight, Mode=TwoWay}"
+        ToolTip.ShowDelay="500">
+
+    <!-- Using DesignInstance for design-time data context -->
     <Design.DataContext>
         <viewModels:ShellViewModel />
     </Design.DataContext>
+    
+    <!-- Resources are defined for reuse throughout the window -->
     <Window.Resources>
         <system:Int32 x:Key="MaxHeaderLength">18</system:Int32>
+        <helpers:BoolToObjectConverter TrueObject="{x:Static WindowState.Maximized}"
+                                       FalseObject="{x:Static WindowState.Normal}"
+                                       x:Key="WindowStateConverter"/>
     </Window.Resources>
-    
-    <DockPanel >
-        <Menu DockPanel.Dock="Top" Background="LightGray">
+
+    <!-- Two-way binding with a converter for window state -->
+    <Window.WindowState>
+        <Binding Path="UserSettings.IsMaximized"
+                 Converter="{StaticResource WindowStateConverter}"
+                 Mode="TwoWay"/>
+    </Window.WindowState>
+
+    <!-- Behaviors for window actions -->
+    <Interaction.Behaviors>
+        <helpers:WindowPositionBehavior PositionX="{Binding UserSettings.WindowLeft}"
+                                        PositionY="{Binding UserSettings.WindowTop}"/>
+        <EventTriggerBehavior EventName="Closing">
+            <InvokeCommandAction Command="{Binding SaveSettingsCommand}"/>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+
+    <!-- Main layout container -->
+    <DockPanel>
+
+        <!-- Menu bar for file operations -->
+        <Menu DockPanel.Dock="Top">
+            <!-- Bindings for menu commands -->
             <MenuItem Header="_File" ToolTip.Tip="File operations">
                 <MenuItem Header="&#xe8e5; _Open File..."
                           Command="{Binding OpenFile}"
@@ -30,7 +60,7 @@
                           Command="{Binding OpenDirectory}"
                           ToolTip.Tip="Open a directory of files"/>
                 <MenuItem Header="&#xe8b7; _Close Folder"
-                          Command="{Binding Close}"
+                          Command="{Binding CloseDirectory}"
                           CommandParameter="{Binding #Directories.SelectedIndex}"
                           ToolTip.Tip="Close the selected directory"/>
                 <Separator/>
@@ -39,26 +69,33 @@
                           ToolTip.Tip="Exit application"/>
             </MenuItem>
         </Menu>
+
+        <!-- Tab control for open directories -->
         <TabControl Name="Directories"
                     DockPanel.Dock="Top"
-                    ItemsSource="{Binding Directories, Mode=OneTime}"
-                    SelectedItem="{Binding SelectedDirectory, Mode=OneWayToSource}"
+                    ItemsSource="{Binding Directories}"
+                    SelectedItem="{Binding SelectedDirectory, Mode=TwoWay}"
                     Margin="0,5,0,0"
-                    Padding="0">
+                    Padding="0"
+                    Background="{StaticResource ControlBackground}">
+
+            <!-- Template for tab header, applying string truncation -->
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Name="TabName"
-                               Text="{Binding Path, Mode=OneTime, Converter={x:Static helpers:StringTruncationConverter.Left},
-                                     ConverterParameter={StaticResource MaxHeaderLength}}"
-                               TextAlignment="Left"
-                               ToolTip.Tip="{Binding Path, Mode=OneTime}"/>
+                    <TextBlock Text="{Binding Path, Converter={x:Static helpers:StringTruncationConverter.Left},
+                                                    ConverterParameter={StaticResource MaxHeaderLength}}"
+                               ToolTip.Tip="{Binding Path}"/>
                 </DataTemplate>
             </TabControl.ItemTemplate>
+
+            <!-- Content template for tabs -->
             <TabControl.ContentTemplate>
                 <DataTemplate>
                     <views:DirectoryView />
                 </DataTemplate>
             </TabControl.ContentTemplate>
+
         </TabControl>
+
     </DockPanel>
 </Window>

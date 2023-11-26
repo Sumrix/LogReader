@@ -9,10 +9,14 @@
              x:DataType="viewModels:DirectoryViewModel"
              ToolTip.ShowDelay="500"
              FontFamily="Segoe UI, Segoe Fluent Icons"
-             Background="{StaticResource LightBackground}">
+             Background="{StaticResource ControlBackground}">
+    
+    <!-- Data context for design-time view in XAML previewer -->
     <Design.DataContext>
         <viewModels:DirectoryViewModel />
     </Design.DataContext>
+
+    <!-- Main layout grid -->
     <Grid RowDefinitions="Auto,*">
 
         <!-- Menu area with file selection and refresh button -->
@@ -24,7 +28,7 @@
                       VerticalContentAlignment="Center"
                       MaxHeight="30"
                       Margin="0,0,5,0"
-                      Background="{StaticResource Foreground}"
+                      Background="{StaticResource InputBackground}"
                       BorderThickness="0"
                       Width="250">
                 <ComboBox.ItemTemplate>
@@ -39,7 +43,7 @@
                     Command="{Binding ReloadFile}"
                     ToolTip.Tip="Reload File"
                     VerticalContentAlignment="Center"
-                    Background="{StaticResource LightBackground}"/>
+                    Background="{StaticResource ControlBackground}"/>
 
         </DockPanel>
 

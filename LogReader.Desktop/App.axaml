@@ -2,15 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="LogReader.Desktop.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
     </Application.Styles>
      <Application.Resources>
-         <Color x:Key="LightBackground">#f0f0f0</Color>
-         <Color x:Key="MainBackground">LightGray</Color>
-         <Color x:Key="Foreground">White</Color>
+         <Color x:Key="WindowBackground">LightGray</Color>
+         <Color x:Key="ControlBackground">#f0f0f0</Color>
+         <Color x:Key="InputBackground">White</Color>
      </Application.Resources>
 </Application>

@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using System.Linq;
 using LogReader.Core.Contracts.Services;
 using LogReader.Desktop.Contracts.Services;
+using LogReader.Desktop.Models;
 using LogReader.Desktop.ViewModels;
 
 namespace LogReader.Desktop.Services;
@@ -15,18 +15,41 @@ internal class DirectoryViewModelFactory : IDirectoryViewModelFactory
         _fileReader = fileReader;
     }
 
-    public DirectoryViewModel CreateViewModel(string directoryPath)
+    public DirectoryViewModel? TryCreateViewModel(string directoryPath)
     {
         var directoryInfo = new DirectoryInfo(directoryPath);
+        if (!directoryInfo.Exists)
+        {
+            return null;
+        }
+
         return new(directoryInfo, _fileReader);
     }
 
-    public DirectoryViewModel CreateViewModel(string directoryPath, string fileName)
+    public DirectoryViewModel? TryCreateViewModel(string directoryPath, string fileName)
     {
         var directoryInfo = new DirectoryInfo(directoryPath);
-        var directoryViewModel = new DirectoryViewModel(directoryInfo, _fileReader);
+        if (!directoryInfo.Exists)
+        {
+            return null;
+        }
 
-        directoryViewModel.SelectedFileInfo = directoryViewModel.Files.First(f => f.Name == fileName);
+        var directoryViewModel = new DirectoryViewModel(directoryInfo, fileName, _fileReader);
+
+        return directoryViewModel;
+    }
+
+    public DirectoryViewModel? TryCreateViewModel(DirectoryViewModelSettings directorySettings)
+    {
+        var directoryInfo = new DirectoryInfo(directorySettings.Path);
+        if (!directoryInfo.Exists)
+        {
+            return null;
+        }
+
+        var directoryViewModel = directorySettings.SelectedFile is not null
+            ? new DirectoryViewModel(directoryInfo, directorySettings.SelectedFile, _fileReader)
+            : new(directoryInfo, _fileReader);
 
         return directoryViewModel;
     }

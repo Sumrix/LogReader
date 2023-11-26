@@ -209,3 +209,6 @@ dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_prefer_compound_assignment = true:warning
 dotnet_style_prefer_simplified_interpolation = true:suggestion
 dotnet_code_quality.ca1826.exclude_ordefault_methods = true
+
+# Default severity for analyzer diagnostics with category 'AvaloniaProperty'
+dotnet_analyzer_diagnostic.category-AvaloniaProperty.severity = none

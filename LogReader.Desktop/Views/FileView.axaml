@@ -5,11 +5,12 @@
              xmlns:viewModels="clr-namespace:LogReader.Desktop.ViewModels"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:helpers="clr-namespace:LogReader.Desktop.Helpers"
+             xmlns:models="clr-namespace:LogReader.Core.Models;assembly=LogReader.Core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LogReader.Desktop.Views.FileView"
              x:DataType="viewModels:FileViewModel"
              ToolTip.ShowDelay="500"
-             Background="{StaticResource LightBackground}">
+             Background="{StaticResource ControlBackground}">
 
     <!-- Data context for design-time view in XAML previewer -->
     <Design.DataContext>
@@ -27,14 +28,14 @@
 
         <!-- List of logs -->
         <DataGrid Name="Logs"
-                 Grid.Column="0"
-                 ItemsSource="{Binding File.Records, Mode=OneWay}"
-                 FontSize="10"
-                 FontFamily="Consolas"
-                 CanUserResizeColumns="True"
-                 Background="{StaticResource Foreground}"
-                 IsReadOnly="True"
-                 SelectionMode="Extended">
+                  Grid.Column="0"
+                  ItemsSource="{Binding File.Records, Mode=OneWay}"
+                  FontSize="10"
+                  FontFamily="Consolas"
+                  CanUserResizeColumns="True"
+                  Background="{StaticResource InputBackground}"
+                  IsReadOnly="True"
+                  SelectionMode="Extended">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, Mode=OneWay, StringFormat=G}"/>
                 <DataGridTextColumn Header="Message" Binding="{Binding Message, Mode=OneWay,
@@ -51,12 +52,10 @@
                 </Style>
             </DataGrid.Styles>
 
-            <!-- Redirecting the DataGrid's selection change event to the ViewModel -->
+            <!-- Binding DataGrid's SelectedRecords to ViewModel -->
             <Interaction.Behaviors>
-                <EventTriggerBehavior EventName="SelectionChanged">
-                    <InvokeCommandAction Command="{Binding SelectionsChangedCommand}"
-                                         CommandParameter="{Binding #Logs.SelectedItems}"/>
-                </EventTriggerBehavior>
+                <helpers:DataGridSelectedItemsBehavior x:TypeArguments="models:Record"
+                                                       SelectedItems="{Binding SelectedRecords}"/>
             </Interaction.Behaviors>
         </DataGrid>
 
@@ -73,6 +72,6 @@
                  FontFamily="Consolas"
                  BorderThickness="0"
                  CornerRadius="0"
-                 Background="{StaticResource Foreground}"/>
+                 Background="{StaticResource InputBackground}"/>
     </Grid>
 </UserControl>
