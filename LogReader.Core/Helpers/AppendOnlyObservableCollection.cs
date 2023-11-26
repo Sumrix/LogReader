@@ -27,20 +27,17 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
         Count = _items.Count;
     }
 
-    public event NotifyCollectionChangedEventHandler? CollectionChanged;
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    public IEnumerator<T> GetEnumerator() => new SnapEnumerator(_items);
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
     void ICollection.CopyTo(Array array, int index) => throw new NotSupportedException();
 
     public int Count { get; private set; }
 
-    bool ICollection.IsSynchronized => throw new NotSupportedException();
+    bool ICollection.IsSynchronized => true;
 
-    object ICollection.SyncRoot => throw new NotSupportedException();
+    object ICollection.SyncRoot => _syncRoot;
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<T> GetEnumerator() => new SnapEnumerator(_items);
 
     int IList.Add(object? value) => throw new NotSupportedException();
 
@@ -52,10 +49,6 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
 
     void IList.Insert(int index, object? value) => throw new NotSupportedException();
 
-    void IList.Remove(object? value) => throw new NotSupportedException();
-
-    void IList.RemoveAt(int index) => throw new NotSupportedException();
-
     bool IList.IsFixedSize => throw new NotSupportedException();
 
     bool IList.IsReadOnly => throw new NotSupportedException();
@@ -65,6 +58,13 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
         get => this[index];
         set => throw new NotSupportedException();
     }
+
+    void IList.Remove(object? value) => throw new NotSupportedException();
+
+    void IList.RemoveAt(int index) => throw new NotSupportedException();
+
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public T this[int index] => (uint)index >= Count
         ? throw new ArgumentOutOfRangeException(nameof(index))
@@ -89,7 +89,7 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
 
             _items.AddRange(list);
             Count = _items.Count;
-                
+
             var isUiThread = _context == SynchronizationContext.Current;
             if (isUiThread)
             {
@@ -109,13 +109,15 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
         }
     }
 
-    private void OnIndexerPropertyChanged() => OnPropertyChanged(new("Item[]"));
+    public int IndexOf(T value) => _items.IndexOf(value);
+
+    private void OnCollectionChanged(NotifyCollectionChangedEventArgs e) => CollectionChanged?.Invoke(this, e);
 
     private void OnCountPropertyChanged() => OnPropertyChanged(new(nameof(Count)));
 
-    private void OnPropertyChanged(PropertyChangedEventArgs e) => PropertyChanged?.Invoke(this, e);
+    private void OnIndexerPropertyChanged() => OnPropertyChanged(new("Item[]"));
 
-    private void OnCollectionChanged(NotifyCollectionChangedEventArgs e) => CollectionChanged?.Invoke(this, e);
+    private void OnPropertyChanged(PropertyChangedEventArgs e) => PropertyChanged?.Invoke(this, e);
 
     private class SnapEnumerator : IEnumerator<T>
     {
@@ -136,6 +138,8 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
         {
         }
 
+        object? IEnumerator.Current => _current;
+
         public bool MoveNext()
         {
             if ((uint)_index < (uint)_count)
@@ -150,14 +154,12 @@ public class AppendOnlyObservableCollection<T> : IList, IReadOnlyList<T>, INotif
             return false;
         }
 
-        public T Current => _current!;
-
-        object? IEnumerator.Current => _current;
-
         void IEnumerator.Reset()
         {
             _index = 0;
             _current = default;
         }
+
+        public T Current => _current!;
     }
 }

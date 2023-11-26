@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LogReader.Core.Contracts.Services;
 using LogReader.Core.Services;
+using LogReader.Desktop.Models;
 
 namespace LogReader.Desktop.ViewModels;
 
@@ -15,16 +16,6 @@ public partial class DirectoryViewModel : ObservableObject
 {
     private readonly IFileReader _fileReader;
 
-    /// <summary>
-    /// The full path of the directory.
-    /// </summary>
-    public string Path { get; }
-
-    /// <summary>
-    /// List of files in the directory.
-    /// </summary>
-    public IReadOnlyList<FileInfo> Files { get; }
-
     [ObservableProperty]
     private FileViewModel? _selectedFile;
 
@@ -32,18 +23,52 @@ public partial class DirectoryViewModel : ObservableObject
     private FileInfo? _selectedFileInfo;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DirectoryViewModel"/> class for the specified directory.
+    /// List of files in the directory.
+    /// </summary>
+    public IReadOnlyList<FileInfo> Files { get; }
+
+    /// <summary>
+    /// The full path of the directory.
+    /// </summary>
+    public string Path { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DirectoryViewModel" /> class for the specified directory.
     /// </summary>
     /// <param name="directoryInfo">Directory information to represent.</param>
     /// <param name="fileReader">File reader service for loading file data.</param>
     public DirectoryViewModel(DirectoryInfo directoryInfo, IFileReader fileReader)
     {
         _fileReader = fileReader;
-        
+
         Path = directoryInfo.FullName;
         Files = directoryInfo.GetFiles();
     }
-    
+
+    public DirectoryViewModel(DirectoryInfo directoryInfo, string selectedFileName, IFileReader fileReader)
+        : this(directoryInfo, fileReader)
+    {
+        SelectedFileInfo = Files.FirstOrDefault(f => f.Name == selectedFileName);
+    }
+
+    public DirectoryViewModel(
+        DirectoryInfo directoryInfo,
+        FileViewModelSettings selectedFileSettings,
+        IFileReader fileReader)
+        : this(directoryInfo, fileReader)
+    {
+        _selectedFileInfo = Files.FirstOrDefault(f => f.Name == selectedFileSettings.Name);
+
+        if (SelectedFileInfo is null)
+        {
+            SelectedFile = null;
+            return;
+        }
+
+        var logFile = _fileReader.Load(SelectedFileInfo);
+        SelectedFile = new(logFile, selectedFileSettings.SelectedRecordIndices);
+    }
+
     /// <summary>
     /// Constructor for XAML previewer with sample data.
     /// </summary>
@@ -55,21 +80,10 @@ public partial class DirectoryViewModel : ObservableObject
         Path = directoryInfo.FullName;
         Files = directoryInfo.GetFiles();
 
-        SelectedFileInfo = Files.SingleOrDefault(f => f.Name == "random_log_file.txt");
+        SelectedFileInfo = Files.SingleOrDefault(f => f.Name == "example_log_file.txt");
     }
 
-    [RelayCommand]
-    public void ReloadFile()
-    {
-        if (SelectedFileInfo is null)
-        {
-            SelectedFile = null;
-            return;
-        }
-
-        var logFile = _fileReader.Load(SelectedFileInfo);
-        SelectedFile = new(logFile);
-    }
+    public DirectoryViewModelSettings GetSettings() => new(Path, SelectedFile?.GetSettings());
 
     /// <summary>
     /// Called when this ViewModel becomes the active (focused) ViewModel.
@@ -87,15 +101,25 @@ public partial class DirectoryViewModel : ObservableObject
         SelectedFile?.OnDeactivated();
     }
 
-    // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnSelectedFileInfoChanged(FileInfo? value)
-    {
-        ReloadFile();
-    }
-
     partial void OnSelectedFileChanged(FileViewModel? oldValue, FileViewModel? newValue)
     {
         oldValue?.OnDeactivated();
         newValue?.OnActivated();
+    }
+
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnSelectedFileInfoChanged(FileInfo? value) => ReloadFile();
+
+    [RelayCommand]
+    public void ReloadFile()
+    {
+        if (SelectedFileInfo is null)
+        {
+            SelectedFile = null;
+            return;
+        }
+
+        var logFile = _fileReader.Load(SelectedFileInfo);
+        SelectedFile = new(logFile);
     }
 }
