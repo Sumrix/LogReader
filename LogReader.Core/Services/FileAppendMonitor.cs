@@ -31,6 +31,11 @@ public sealed class FileAppendMonitor : IFileUpdateNotifier, IDisposable
             throw new ArgumentException($"The field {nameof(fileInfo.DirectoryName)} cannot be null");
         }
 
+        if (_fileWatcher?.EnableRaisingEvents == true)
+        {
+            return;
+        }
+
         _lastFileSize = fileInfo.Length;
         _fileWatcher = new()
         {
@@ -54,7 +59,7 @@ public sealed class FileAppendMonitor : IFileUpdateNotifier, IDisposable
             throw new ArgumentNullException(nameof(fileInfo));
         }
 
-        if (_fileWatcher != null)
+        if (_fileWatcher is { EnableRaisingEvents: true })
         {
             _fileWatcher.Changed -= OnChanged;
             _fileWatcher.EnableRaisingEvents = false;

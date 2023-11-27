@@ -48,7 +48,16 @@ public partial class DirectoryViewModel : ObservableObject
     public DirectoryViewModel(DirectoryInfo directoryInfo, string selectedFileName, IFileReader fileReader)
         : this(directoryInfo, fileReader)
     {
-        SelectedFileInfo = Files.FirstOrDefault(f => f.Name == selectedFileName);
+        _selectedFileInfo = Files.FirstOrDefault(f => f.Name == selectedFileName);
+
+        if (_selectedFileInfo is null)
+        {
+            _selectedFile = null;
+            return;
+        }
+
+        var logFile = _fileReader.Load(_selectedFileInfo);
+        _selectedFile = new(logFile);
     }
 
     public DirectoryViewModel(
@@ -59,14 +68,14 @@ public partial class DirectoryViewModel : ObservableObject
     {
         _selectedFileInfo = Files.FirstOrDefault(f => f.Name == selectedFileSettings.Name);
 
-        if (SelectedFileInfo is null)
+        if (_selectedFileInfo is null)
         {
-            SelectedFile = null;
+            _selectedFile = null;
             return;
         }
 
-        var logFile = _fileReader.Load(SelectedFileInfo);
-        SelectedFile = new(logFile, selectedFileSettings.SelectedRecordIndices);
+        var logFile = _fileReader.Load(_selectedFileInfo);
+        _selectedFile = new(logFile, selectedFileSettings.SelectedRecordIndices);
     }
 
     /// <summary>
@@ -106,9 +115,6 @@ public partial class DirectoryViewModel : ObservableObject
         oldValue?.OnDeactivated();
         newValue?.OnActivated();
     }
-
-    // ReSharper disable once UnusedParameterInPartialMethod
-    partial void OnSelectedFileInfoChanged(FileInfo? value) => ReloadFile();
 
     [RelayCommand]
     public void ReloadFile()

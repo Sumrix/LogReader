@@ -37,6 +37,7 @@ public partial class FileViewModel : ObservableObject
     public FileViewModel(FileData file, IEnumerable<int> selectedRecordIndices) : this(file)
     {
         SelectedRecords = selectedRecordIndices
+            .Where(i => i > 0 && i < File.Records.Count)
             .Select(i => File.Records[i])
             .ToList();
     }
