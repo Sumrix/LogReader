@@ -116,6 +116,15 @@ public partial class DirectoryViewModel : ObservableObject
         newValue?.OnActivated();
     }
 
+    partial void OnSelectedFileInfoChanged(FileInfo? oldValue, FileInfo? newValue)
+    {
+        // For some reason, Avalonia pushes a null value when switching tabs. We want to avoid reloading the file in those cases.
+        if (newValue != null && SelectedFile == null || oldValue != null && newValue != null && SelectedFile != null)
+        {
+            ReloadFile();
+        }
+    }
+
     [RelayCommand]
     public void ReloadFile()
     {
