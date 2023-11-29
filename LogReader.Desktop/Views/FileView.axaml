@@ -56,6 +56,7 @@
             <Interaction.Behaviors>
                 <helpers:DataGridSelectedItemsBehavior x:TypeArguments="models:Record"
                                                        SelectedItems="{Binding SelectedRecords}"/>
+                <helpers:KeepScrollAtBottomBehavior/>
             </Interaction.Behaviors>
         </DataGrid>
 
