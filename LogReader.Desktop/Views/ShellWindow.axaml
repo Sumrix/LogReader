@@ -25,9 +25,12 @@
     <!-- Resources are defined for reuse throughout the window -->
     <Window.Resources>
         <system:Int32 x:Key="MaxHeaderLength">18</system:Int32>
+        <helpers:OneTimeOneWayToSourceConverter x:Key="WindowStateConverter">
+            <helpers:OneTimeOneWayToSourceConverter.ChildConverter>
         <helpers:BoolToObjectConverter TrueObject="{x:Static WindowState.Maximized}"
-                                       FalseObject="{x:Static WindowState.Normal}"
-                                       x:Key="WindowStateConverter"/>
+                                               FalseObject="{x:Static WindowState.Normal}"/>
+            </helpers:OneTimeOneWayToSourceConverter.ChildConverter>
+        </helpers:OneTimeOneWayToSourceConverter>
     </Window.Resources>
 
     <!-- Two-way binding with a converter for window state -->
