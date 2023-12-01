@@ -24,13 +24,13 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     private readonly Timer _saveTimer;
     private readonly IUserSettingsService _userSettingsService;
 
-    private UserSettings _oldUserSettings;
-
     /// <summary>
     /// Collection of directory view models representing open directories.
     /// </summary>
     [ObservableProperty]
     private ObservableCollection<DirectoryViewModel> _directories;
+
+    private UserSettings _savedUserSettings;
 
     /// <summary>
     /// The currently selected directory view model.
@@ -63,7 +63,7 @@ public partial class ShellViewModel : ObservableObject, IDisposable
 
         Directories = new();
         UserSettings = _userSettingsService.LoadSettings();
-        _oldUserSettings = UserSettings.DeepCopy();
+        _savedUserSettings = UserSettings.DeepCopy();
         RestoreSettings();
 
         _saveTimer = new(TimeSpan.FromSeconds(5))
@@ -85,7 +85,7 @@ public partial class ShellViewModel : ObservableObject, IDisposable
         _directoryViewModelFactory = null!;
         _userSettingsService = null!;
         _saveTimer = null!;
-        _oldUserSettings = null!;
+        _savedUserSettings = null!;
         var fileReader = new FileReader(new LogParser(), new FileAppendMonitorFactory());
         Directories = new()
         {
@@ -101,14 +101,6 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
         _saveTimer.Dispose();
-    }
-
-    /// <summary>
-    /// Saves the user settings at a regular interval.
-    /// </summary>
-    private void SaveTimerElapsed(object? sender, ElapsedEventArgs e)
-    {
-        SaveSettings();
     }
 
     /// <summary>
@@ -229,10 +221,18 @@ public partial class ShellViewModel : ObservableObject, IDisposable
             ? Directories.IndexOf(SelectedDirectory) 
             : null;
 
-        if (!UserSettings.Equals(_oldUserSettings))
+        if (!UserSettings.Equals(_savedUserSettings))
         {
             _userSettingsService.SaveSettings(UserSettings);
-            _oldUserSettings = UserSettings.DeepCopy();
+            _savedUserSettings = UserSettings.DeepCopy();
         }
+    }
+
+    /// <summary>
+    /// Saves the user settings at a regular interval.
+    /// </summary>
+    private void SaveTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        SaveSettings();
     }
 }
