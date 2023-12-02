@@ -76,6 +76,8 @@ public sealed class FileAppendMonitor : IFileUpdateNotifier, IDisposable
 
             // So that we are not affected by external changes to fileInfo, we want our own copy of the object
             _monitoredFile = new(fileInfo.FullName);
+            // Ensure we have the original file size
+            _monitoredFile.Refresh();
 
             _fileWatcher.Path = _monitoredFile.DirectoryName ?? "";
             _fileWatcher.Filter = _monitoredFile.Name;
