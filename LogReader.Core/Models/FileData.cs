@@ -9,7 +9,7 @@ namespace LogReader.Core.Models;
 public class FileData
 {
     // Initial capacity set for large files to optimize memory allocation.
-    private const int InitialCapacity = 500; 
+    private const int InitialCapacity = 500;
 
     private readonly IFileReader _fileReader;
     private readonly IFileUpdateNotifier _fileUpdateNotifier;
@@ -30,6 +30,8 @@ public class FileData
     /// </summary>
     public AppendOnlyObservableCollection<Record> Records { get; }
 
+    public object SyncRoot { get; } = new();
+
     /// <summary>
     /// Initializes a new instance of the FileData class for a given log file.
     /// </summary>
@@ -45,11 +47,12 @@ public class FileData
     }
 
     /// <summary>
-    /// Updates the file data by reading new content from the log file.
+    /// Handles the <see cref="IFileUpdateNotifier.UpdateRequired"/> event from the file update notifier.
+    /// Triggers an update of the file data.
     /// </summary>
-    public void Update()
+    private void FileUpdateNotifierOnUpdateRequired(object? sender, EventArgs e)
     {
-        _fileReader.Update(this);
+        Update();
     }
 
     /// <summary>
@@ -62,20 +65,19 @@ public class FileData
     }
 
     /// <summary>
-    /// Handles the <c>UpdateRequired</c> event from the file update notifier.
-    /// Triggers an update of the file data.
-    /// </summary>
-    private void FileUpdateNotifierOnUpdateRequired(object? sender, EventArgs e)
-    {
-        Update();
-    }
-
-    /// <summary>
     /// Stops the automatic updating of the file data.
     /// </summary>
     public void StopAutoUpdating()
     {
-        _fileUpdateNotifier.Deactivate(FileInfo);
+        _fileUpdateNotifier.Deactivate();
         _fileUpdateNotifier.UpdateRequired -= FileUpdateNotifierOnUpdateRequired;
+    }
+
+    /// <summary>
+    /// Updates the file data by reading new content from the log file.
+    /// </summary>
+    public void Update()
+    {
+        _fileReader.Update(this);
     }
 }

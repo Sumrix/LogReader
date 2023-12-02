@@ -21,7 +21,7 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     private readonly IClassicDesktopStyleApplicationLifetime _desktopService;
     private readonly IDialogService _dialogService;
     private readonly IDirectoryViewModelFactory _directoryViewModelFactory;
-    private readonly Timer _saveTimer;
+    private readonly Timer _saveSettingsTimer;
     private readonly IUserSettingsService _userSettingsService;
 
     /// <summary>
@@ -66,12 +66,12 @@ public partial class ShellViewModel : ObservableObject, IDisposable
         _savedUserSettings = UserSettings.DeepCopy();
         RestoreSettings();
 
-        _saveTimer = new(TimeSpan.FromSeconds(5))
+        _saveSettingsTimer = new(TimeSpan.FromSeconds(5))
         {
             AutoReset = true
         };
-        _saveTimer.Elapsed += SaveTimerElapsed;
-        _saveTimer.Start();
+        _saveSettingsTimer.Elapsed += SaveSettingsTimerElapsed;
+        _saveSettingsTimer.Start();
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public partial class ShellViewModel : ObservableObject, IDisposable
         _desktopService = null!;
         _directoryViewModelFactory = null!;
         _userSettingsService = null!;
-        _saveTimer = null!;
+        _saveSettingsTimer = null!;
         _savedUserSettings = null!;
         var fileReader = new FileReader(new LogParser(), new FileAppendMonitorFactory());
         Directories = new()
@@ -100,7 +100,7 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     /// </summary>
     public void Dispose()
     {
-        _saveTimer.Dispose();
+        _saveSettingsTimer.Dispose();
     }
 
     /// <summary>
@@ -123,6 +123,12 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     public void Exit()
     {
         _desktopService.MainWindow?.Close();
+    }
+
+    [RelayCommand]
+    public void OnActivated()
+    {
+        SelectedDirectory?.OnActivated();
     }
 
     /// <summary>
@@ -217,8 +223,8 @@ public partial class ShellViewModel : ObservableObject, IDisposable
             .Select(d => d.GetSettings())
             .ToList();
 
-        UserSettings.SelectedDirectoryIndex = SelectedDirectory is not null 
-            ? Directories.IndexOf(SelectedDirectory) 
+        UserSettings.SelectedDirectoryIndex = SelectedDirectory is not null
+            ? Directories.IndexOf(SelectedDirectory)
             : null;
 
         if (!UserSettings.Equals(_savedUserSettings))
@@ -231,7 +237,7 @@ public partial class ShellViewModel : ObservableObject, IDisposable
     /// <summary>
     /// Saves the user settings at a regular interval.
     /// </summary>
-    private void SaveTimerElapsed(object? sender, ElapsedEventArgs e)
+    private void SaveSettingsTimerElapsed(object? sender, ElapsedEventArgs e)
     {
         SaveSettings();
     }
