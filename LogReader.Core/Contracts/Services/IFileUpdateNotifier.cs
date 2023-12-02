@@ -19,6 +19,5 @@ public interface IFileUpdateNotifier
     /// <summary>
     /// Deactivates the notifier, stopping monitoring of the file.
     /// </summary>
-    /// <param name="fileInfo">The file to stop monitoring.</param>
-    void Deactivate(FileInfo fileInfo);
+    void Deactivate();
 }

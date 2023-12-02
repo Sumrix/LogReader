@@ -74,7 +74,7 @@ public class FileAppendMonitorTests
         fileAppendMonitor.Activate(_fileInfo);
 
         // Act
-        fileAppendMonitor.Deactivate(_fileInfo);
+        fileAppendMonitor.Deactivate();
         await File.AppendAllTextAsync(_fileInfo.FullName, _randomizer.GetString());
         await Task.Delay(10);
 
@@ -88,19 +88,9 @@ public class FileAppendMonitorTests
         // Arrange
         using var fileAppendMonitor = new FileAppendMonitor();
         fileAppendMonitor.Activate(_fileInfo);
-        fileAppendMonitor.Deactivate(_fileInfo);
+        fileAppendMonitor.Deactivate();
 
         // Act & Assert
-        Assert.DoesNotThrow(() => fileAppendMonitor.Deactivate(_fileInfo));
-    }
-
-    [Test]
-    public void Deactivate_WithNullFileData_ShouldThrowArgumentNullException()
-    {
-        // Arrange
-        using var fileAppendMonitor = new FileAppendMonitor();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => fileAppendMonitor.Deactivate(null!));
+        Assert.DoesNotThrow(() => fileAppendMonitor.Deactivate());
     }
 }

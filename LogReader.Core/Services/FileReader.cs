@@ -42,33 +42,38 @@ public class FileReader : IFileReader
             throw new ArgumentNullException(nameof(fileData));
         }
 
-        fileData.FileInfo.Refresh();
-
-        if (!fileData.FileInfo.Exists)
+        // To avoid parallel reading
+        lock (fileData.SyncRoot)
         {
-            throw new FileNotFoundException("File not found", fileData.FileInfo.FullName);
+            fileData.FileInfo.Refresh();
+
+            if (!fileData.FileInfo.Exists)
+            {
+                throw new FileNotFoundException("File not found", fileData.FileInfo.FullName);
+            }
+
+            var fileLength = fileData.FileInfo.Length;
+            var lastReadPosition = fileData.LastReadPosition;
+
+            if (fileLength == lastReadPosition)
+            {
+                return;
+            }
+
+            using var stream = fileData.FileInfo.Open(new FileStreamOptions
+            {
+                Mode = FileMode.Open,
+                Access = FileAccess.Read,
+                Share = FileShare.ReadWrite,
+                BufferSize = BufferSize,
+            });
+
+            // Continue reading from the last position
+            stream.Position = lastReadPosition;
+            var newRecords = _parser.Parse(stream);
+
+            fileData.Records.AddRange(newRecords);
+            fileData.LastReadPosition = stream.Position;
         }
-
-        var fileLength = fileData.FileInfo.Length;
-        var lastReadPosition = fileData.LastReadPosition;
-
-        if (fileLength == lastReadPosition)
-        {
-            return;
-        }
-
-        using var stream = fileData.FileInfo.Open(new FileStreamOptions
-        {
-            Mode = FileMode.Open,
-            Access = FileAccess.Read,
-            Share = FileShare.ReadWrite,
-            BufferSize = BufferSize,
-        });
-        stream.Position = lastReadPosition;
-
-        var newRecords = _parser.Parse(stream);
-        fileData.Records.AddRange(newRecords);
-        
-        fileData.LastReadPosition = stream.Position;
     }
 }

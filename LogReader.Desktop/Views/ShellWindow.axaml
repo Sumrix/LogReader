@@ -9,7 +9,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="LogReader.Desktop.Views.ShellWindow"
         x:DataType="viewModels:ShellViewModel"
-        Icon="/Assets/LogReader.ico"
+        Icon="/Assets/LogReader.ico" 
         Title="Log Reader"
         FontFamily="Segoe UI, Segoe Fluent Icons"
         Background="{StaticResource WindowBackground}"
@@ -27,7 +27,7 @@
         <system:Int32 x:Key="MaxHeaderLength">18</system:Int32>
         <helpers:OneTimeOneWayToSourceConverter x:Key="WindowStateConverter">
             <helpers:OneTimeOneWayToSourceConverter.ChildConverter>
-        <helpers:BoolToObjectConverter TrueObject="{x:Static WindowState.Maximized}"
+                <helpers:BoolToObjectConverter TrueObject="{x:Static WindowState.Maximized}"
                                                FalseObject="{x:Static WindowState.Normal}"/>
             </helpers:OneTimeOneWayToSourceConverter.ChildConverter>
         </helpers:OneTimeOneWayToSourceConverter>
@@ -44,6 +44,9 @@
     <Interaction.Behaviors>
         <helpers:WindowPositionBehavior PositionX="{Binding UserSettings.WindowLeft}"
                                         PositionY="{Binding UserSettings.WindowTop}"/>
+        <EventTriggerBehavior EventName="Activated">
+            <InvokeCommandAction Command="{Binding OnActivated}"/>
+        </EventTriggerBehavior>
         <EventTriggerBehavior EventName="Closing">
             <InvokeCommandAction Command="{Binding SaveSettingsCommand}"/>
         </EventTriggerBehavior>
